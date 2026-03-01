@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronLeft, MapPin, Phone, Mail, FileText, Calendar, Shirt, HardHat, Car, PersonStanding, Bike, Star, TrendingUp } from 'lucide-react';
+import { ChevronLeft, MapPin, Phone, Mail, FileText, Calendar, Shirt, HardHat, Car, PersonStanding, Bike, Star, TrendingUp, Pencil } from 'lucide-react';
 import Link from 'next/link';
 import { getTechnicianById } from '../../actions/technicians';
 import { notFound } from 'next/navigation';
@@ -44,14 +44,23 @@ export default async function TecnicoPerfilPage({
 
     return (
         <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
-            <header className="flex items-center gap-4">
-                <Link href="/equipe" className="p-2 hover:bg-white/5 rounded-xl transition-all text-foreground/50 hover:text-brand-cyan">
-                    <ChevronLeft size={24} />
-                </Link>
-                <div>
-                    <h2 className="text-3xl font-bold tracking-tight">Perfil do Técnico</h2>
-                    <p className="text-foreground/50">Detalhes completos do colaborador.</p>
+            <header className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                    <Link href="/equipe" className="p-2 hover:bg-white/5 rounded-xl transition-all text-foreground/50 hover:text-brand-cyan">
+                        <ChevronLeft size={24} />
+                    </Link>
+                    <div>
+                        <h2 className="text-3xl font-bold tracking-tight">Perfil do Técnico</h2>
+                        <p className="text-foreground/50">Detalhes completos do colaborador.</p>
+                    </div>
                 </div>
+                <Link
+                    href={`/equipe/${tech.id}/editar`}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-cyan text-black text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-all shadow-[0_0_15px_#06d0f933]"
+                >
+                    <Pencil size={16} />
+                    Editar Perfil
+                </Link>
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
