@@ -18,43 +18,57 @@ export default async function TrocaOleoPage() {
         getAllTechnicians()
     ]);
 
-    // Calcular motos com troca de óleo atrasada 
-    // Considerando o cenário simples de hodometro_atual > (última troca na timeline? pra simplificar, a moto precisa ter um campo, ou usar a última db row)
-    // Para simplificar a POC, vamos assumir que as oilChanges têm "alerta_ultrapassou" ou calcular agora baseado na mais recente de cada moto
-    const delayedMotos = motos.filter((moto: any) => {
+    // Calcular motos com troca de óleo pendente ou atrasada 
+    const limit = 800; // Limite rigoroso de troca
+    const alertLimit = 750; // Início do alerta de proximidade
+
+    const oilStatusList = motos.map((moto: any) => {
         const lastChange = oilChanges.find((oc: any) => oc.motoId === moto.id);
         const lastKm = lastChange ? Number(lastChange.quilometragem) : 0;
         const currentKm = Number(moto.hodometro_atual);
-        const limit = 900; // 900 km 
-        return currentKm - lastKm > limit;
-    });
+        const diff = currentKm - lastKm;
+
+        let status = 'OK';
+        if (diff > limit) status = 'ATRASADA';
+        else if (diff >= alertLimit) status = 'PROXIMA';
+
+        return { ...moto, diff, status, lastKm };
+    }).filter((m: any) => m.status !== 'OK').sort((a: any, b: any) => b.diff - a.diff);
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">Troca de Óleo</h2>
-                    <p className="text-foreground/50">Controle rigoroso do intervalo de 900km.</p>
+                    <p className="text-foreground/50">Controle rigoroso do intervalo máximo de 800km.</p>
                 </div>
             </header>
 
             {/* Alert Banner for pending changes */}
-            {delayedMotos.length > 0 && (
-                <div className="space-y-3">
-                    {delayedMotos.map((moto: any, idx: number) => {
-                        const lastChange = oilChanges.find((oc: any) => oc.motoId === moto.id);
-                        const lastKm = lastChange ? Number(lastChange.quilometragem) : 0;
-                        const excesso = Number(moto.hodometro_atual) - lastKm - 900;
+            {oilStatusList.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {oilStatusList.map((moto: any, idx: number) => {
+                        const isCritical = moto.status === 'ATRASADA';
+                        const bgColor = isCritical ? 'border-red-500' : 'border-brand-orange';
+                        const iconBg = isCritical ? 'bg-red-500/10 text-red-500' : 'bg-brand-orange/10 text-brand-orange';
+                        const titleColor = isCritical ? 'text-red-400' : 'text-brand-orange';
 
                         return (
-                            <div key={idx} className="glass border-l-4 border-red-500 p-4 rounded-xl flex items-center justify-between">
+                            <div key={idx} className={`glass border-l-4 ${bgColor} p-4 rounded-xl flex items-center justify-between`}>
                                 <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-500">
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${iconBg}`}>
                                         <AlertTriangle size={20} />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-red-400">{moto.placa} ({moto.modelo}) — Troca ATRASADA!</h4>
-                                        <p className="text-xs text-foreground/50">Excedido em {excesso.toFixed(1)} km além do limite de 900km.</p>
+                                        <h4 className={`font-bold ${titleColor}`}>
+                                            {moto.placa} — {isCritical ? 'Troca ATRASADA!' : 'Troca PRÓXIMA'}
+                                        </h4>
+                                        <p className="text-xs text-foreground/50">
+                                            {isCritical
+                                                ? `Excedido em ${(moto.diff - limit).toFixed(0)} km além do limite de ${limit}km.`
+                                                : `Já rodou ${moto.diff.toFixed(0)} km. Limite é ${limit}km.`
+                                            }
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -89,7 +103,7 @@ export default async function TrocaOleoPage() {
                             <tbody className="divide-y divide-white/5">
                                 {oilChanges.map((log: any) => {
                                     const diff = Number(log.diferenca_km || 0);
-                                    const isOk = diff <= 1000;
+                                    const isOk = diff <= 800; // Updated limit
 
                                     return (
                                         <tr key={log.id} className="text-sm hover:bg-white/5 transition-all">

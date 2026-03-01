@@ -23,18 +23,30 @@ export default async function Dashboard() {
     getOilChanges()
   ]);
 
-  // Calculate critical oil alerts
-  const oilAlerts = recentMotos.filter((m: any) => {
-    // Logic: if km since last change > 800 (nearing 900 limit)
+  // Calculate critical oil alerts based on 800km limit
+  const oilAlerts = recentMotos.map((m: any) => {
     const lastChange = oilChanges.find((oc: any) => oc.motoId === m.id);
-    const kmSince = lastChange ? Number(m.hodometro_atual) - Number(lastChange.quilometragem) : Number(m.hodometro_atual);
-    return kmSince > 800;
-  }).map((m: any) => ({
-    title: 'Troca de Óleo Próxima',
-    desc: `${m.placa} atingiu ${m.hodometro_atual}km`,
-    type: 'warning',
-    icon: Droplets
-  }));
+    const lastKm = lastChange ? Number(lastChange.quilometragem) : 0;
+    const currentKm = Number(m.hodometro_atual);
+    const diff = currentKm - lastKm;
+
+    if (diff > 800) {
+      return {
+        title: 'Troca Atrasada',
+        desc: `${m.placa}: ${diff.toFixed(0)}km rodados (Excedeu 800km).`,
+        type: 'error',
+        icon: AlertTriangle
+      };
+    } else if (diff >= 750) {
+      return {
+        title: 'Troca Próxima',
+        desc: `${m.placa}: ${diff.toFixed(0)}km. Agende a manutenção.`,
+        type: 'warning',
+        icon: Droplets
+      };
+    }
+    return null;
+  }).filter(Boolean);
 
   const stats = [
     { label: 'Técnicos Ativos', value: activeTechs.toString(), icon: Users, trend: 'Tempo Real', color: 'brand-cyan' },
