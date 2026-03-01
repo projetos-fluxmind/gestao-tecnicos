@@ -1,28 +1,11 @@
 import React from 'react';
 import {
     BarChart3,
-    Download,
-    FileText,
     Calendar,
-    Filter,
-    Users,
-    Bike,
-    Search,
-    ArrowRight,
-    TrendingUp
 } from 'lucide-react';
 import { getAllTechnicians } from '../actions/technicians';
 import { getMotorcycles } from '../actions/motorcycles';
 import { ReportGenerator } from '@/components/ReportGenerator';
-
-const reportTypes = [
-    { id: 'km', idLabel: 'QUILOMETRAGEM', title: 'Relatório de Quilometragem', icon: BarChart3, color: 'brand-cyan', desc: 'Resumo de KM rodada por técnico e moto.' },
-    { id: 'fuel', idLabel: 'ABASTECIMENTOS', title: 'Relatório de Abastecimentos', icon: Download, color: 'brand-emerald', desc: 'Análise de consumo e gastos com combustível.' },
-    { id: 'oil', idLabel: 'ÓLEO', title: 'Trocas de Óleo', icon: FileText, color: 'brand-orange', desc: 'Monitoramento de intervalos e alertas de atraso.' },
-    { id: 'expense', idLabel: 'DESPESAS', title: 'Despesas e Reembolsos', icon: Download, color: 'brand-cyan', desc: 'Consolidado financeiro de despesas operacionais.' },
-    { id: 'maintenance', idLabel: 'MANUTENÇÃO', title: 'Manutenções Realizadas', icon: FileText, color: 'brand-orange', desc: 'Histórico de preventivas e corretivas.' },
-    { id: 'consolidated', idLabel: 'EXTRATO', title: 'Consolidado Mensal', icon: BarChart3, color: 'brand-emerald', desc: 'Visão executiva total do sistema.' },
-];
 
 export default async function RelatoriosPage() {
     const [techs, motos] = await Promise.all([
@@ -46,7 +29,7 @@ export default async function RelatoriosPage() {
             </header>
 
             {/* Main Interactive Report Engine */}
-            <ReportGenerator techs={techs} motos={motos} reportTypes={reportTypes} />
+            <ReportGenerator techs={techs} motos={motos} />
 
             {/* Information Alert - Highlighting the value of analysis */}
             <div className="p-8 rounded-[2rem] bg-brand-cyan/5 border border-brand-cyan/10 flex flex-col md:flex-row gap-6 items-center md:items-start group hover:bg-brand-cyan/[0.08] transition-all">

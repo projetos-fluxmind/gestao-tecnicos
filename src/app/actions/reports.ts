@@ -14,17 +14,24 @@ function serializeDecimal(obj: any): any {
     if (obj === null || obj === undefined) return obj;
     if (typeof obj !== 'object') return obj;
 
+    if (obj instanceof Date) {
+        return obj.toISOString();
+    }
+
     if (Array.isArray(obj)) {
         return obj.map(serializeDecimal);
     }
 
-    // Check if it's a Prisma Decimal object
-    if (obj.constructor && obj.constructor.name === 'Decimal') {
+    // Check if it's a Prisma Decimal object (duck typing to avoid minification issues)
+    if (obj && typeof obj.toNumber === 'function' && 'd' in obj && 'e' in obj && 's' in obj) {
+        return obj.toNumber();
+    }
+    if (obj && obj.constructor && obj.constructor.name === 'Decimal') {
         return Number(obj);
     }
 
     const serialized: any = {};
-    for (const key in obj) {
+    for (const key of Object.keys(obj)) {
         serialized[key] = serializeDecimal(obj[key]);
     }
     return serialized;

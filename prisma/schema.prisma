@@ -71,7 +71,17 @@ model Technician {
   user                      User?                 @relation(fields: [usuarioId], references: [id])
   nome                      String                @db.VarChar(100)
   matricula                 String                @unique @db.VarChar(20)
+  cpf_rg                    String?               @db.VarChar(20)
+  cnh                       String?               @db.VarChar(20)
+  data_nascimento           DateTime?             @db.Date
+  cidade_atuacao            String?               @db.VarChar(100)
+  residencia                String?               @db.VarChar(255)
+  tamanho_camisa            String?               @db.VarChar(10)
+  tamanho_calca             String?               @db.VarChar(10)
+  tamanho_bota              String?               @db.VarChar(10)
+  tamanho_capacete          String?               @db.VarChar(10)
   telefone                  String?               @db.VarChar(20)
+  foto_perfil               String?               @db.Text
   regiao_atuacao            String?               @db.VarChar(100)
   cartao_corporativo_numero String?               @db.VarChar(30)
   cartao_corporativo_limite Decimal?              @db.Decimal(10, 2)

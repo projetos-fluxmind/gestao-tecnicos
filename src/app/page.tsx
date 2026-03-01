@@ -67,9 +67,9 @@ export default async function Dashboard() {
             <div className="w-2 h-2 rounded-full bg-brand-emerald animate-pulse" />
             SISTEMA ONLINE
           </div>
-          <button className="px-4 py-2 bg-brand-cyan text-black font-bold rounded-xl hover:opacity-90 transition-all text-sm shadow-[0_0_15px_#06d0f933]">
+          <Link href="/relatorios" className="px-4 py-2 bg-brand-cyan text-black font-bold rounded-xl hover:opacity-90 transition-all text-sm shadow-[0_0_15px_#06d0f933]">
             Relatório Rápido
-          </button>
+          </Link>
         </div>
       </header>
 

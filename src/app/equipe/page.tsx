@@ -60,6 +60,23 @@ export default async function EquipePage({
                 {technicians.map((tech: any) => {
                     const currentMoto = tech.assignments?.find((a: any) => !a.data_fim)?.motorcycle;
 
+                    const nameParts = tech.nome.split(' ');
+                    const shortName = nameParts.length > 1 ? `${nameParts[0]} ${nameParts[nameParts.length - 1]}` : nameParts[0];
+
+                    let ageText = "";
+                    if (tech.data_nascimento) {
+                        const birthDate = new Date(tech.data_nascimento);
+                        const today = new Date();
+                        let age = today.getFullYear() - birthDate.getFullYear();
+                        const m = today.getMonth() - birthDate.getMonth();
+                        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                            age--;
+                        }
+                        ageText = `${age} anos • `;
+                    }
+
+                    const locationText = tech.cidade_atuacao || tech.regiao_atuacao || "Região não def.";
+
                     return (
                         <div key={tech.id} className="glass rounded-[2rem] p-8 flex flex-col sm:flex-row gap-8 relative group border border-white/5 hover:border-brand-emerald/20 transition-all duration-500 overflow-hidden shadow-2xl bg-gradient-to-br from-white/2 to-transparent">
 
@@ -71,7 +88,11 @@ export default async function EquipePage({
 
                             <div className="flex-shrink-0">
                                 <div className="w-28 h-28 rounded-3xl bg-gradient-to-br from-brand-cyan/20 via-transparent to-brand-emerald/20 flex items-center justify-center border border-white/10 relative group-hover:scale-105 transition-transform duration-500 overflow-hidden">
-                                    <span className="text-3xl font-black text-white/80 tracking-tighter shadow-sm">{tech.nome.split(' ').map((n: string) => n[0]).join('')}</span>
+                                    {tech.foto_perfil ? (
+                                        <img src={tech.foto_perfil} alt={tech.nome} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <span className="text-3xl font-black text-white/80 tracking-tighter shadow-sm">{nameParts.map((n: string) => n[0]).join('').substring(0, 2)}</span>
+                                    )}
                                     <div className="absolute inset-0 bg-brand-cyan/5 opacity-0 group-hover:opacity-100 transition-opacity" />
 
                                     {/* Status Indicator */}
@@ -82,16 +103,16 @@ export default async function EquipePage({
 
                             <div className="flex-1 space-y-6">
                                 <div>
-                                    <h3 className="text-2xl font-bold tracking-tight text-foreground/90">{tech.nome}</h3>
-                                    <p className="text-[10px] font-bold text-brand-cyan/60 uppercase tracking-[0.2em] mt-1">{tech.matricula} • {tech.regiao_atuacao}</p>
+                                    <h3 className="text-2xl font-bold tracking-tight text-foreground/90">{shortName}</h3>
+                                    <p className="text-[10px] font-bold text-brand-cyan/60 uppercase tracking-[0.2em] mt-1">{tech.matricula} • {ageText}{locationText}</p>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="p-3 bg-black/20 rounded-2xl border border-white/5">
                                         <p className="text-[9px] font-bold text-foreground/20 uppercase tracking-widest mb-1 flex items-center gap-1">
-                                            <Bike size={10} /> Ativo Vinculado
+                                            <Bike size={10} /> Moto Vinculada
                                         </p>
-                                        <p className="text-sm font-bold font-mono text-foreground/60">{currentMoto ? currentMoto.placa : 'Nenhum'}</p>
+                                        <p className="text-sm font-bold font-mono text-foreground/60">{currentMoto ? `${currentMoto.modelo} (${currentMoto.placa})` : 'Nenhuma'}</p>
                                     </div>
                                     <div className="p-3 bg-black/20 rounded-2xl border border-white/5">
                                         <p className="text-[9px] font-bold text-foreground/20 uppercase tracking-widest mb-1 flex items-center gap-1">
@@ -103,17 +124,17 @@ export default async function EquipePage({
 
                                 <div className="flex items-center justify-between pt-2">
                                     <div className="flex gap-2">
-                                        <button className="p-3 bg-white/5 rounded-xl text-foreground/40 hover:text-brand-cyan hover:bg-brand-cyan/10 transition-all border border-transparent hover:border-brand-cyan/20">
+                                        <a href={`https://wa.me/55${tech.telefone?.replace(/\D/g, '')}?text=Olá%20${shortName}!`} target="_blank" rel="noopener noreferrer" className="p-3 bg-white/5 rounded-xl text-foreground/40 hover:text-brand-cyan hover:bg-brand-cyan/10 transition-all border border-transparent hover:border-brand-cyan/20">
                                             <Phone size={18} />
-                                        </button>
-                                        <button className="p-3 bg-white/5 rounded-xl text-foreground/40 hover:text-brand-cyan hover:bg-brand-cyan/10 transition-all border border-transparent hover:border-brand-cyan/20">
+                                        </a>
+                                        <a href={`mailto:contato@coopercar.com?subject=Contato%20Técnico%20${shortName}`} className="p-3 bg-white/5 rounded-xl text-foreground/40 hover:text-brand-cyan hover:bg-brand-cyan/10 transition-all border border-transparent hover:border-brand-cyan/20">
                                             <Mail size={18} />
-                                        </button>
+                                        </a>
                                     </div>
-                                    <button className="flex items-center gap-2 px-5 py-2.5 bg-black/30 hover:bg-black/50 border border-white/5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all group/btn">
+                                    <Link href={`/equipe/${tech.id}`} className="flex items-center gap-2 px-5 py-2.5 bg-black/30 hover:bg-black/50 border border-white/5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all group/btn">
                                         Perfil Completo
                                         <ArrowUpRight size={14} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
-                                    </button>
+                                    </Link>
                                 </div>
                             </div>
                         </div>

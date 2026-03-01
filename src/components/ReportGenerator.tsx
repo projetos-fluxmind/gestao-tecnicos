@@ -17,14 +17,25 @@ import {
     Loader2
 } from 'lucide-react';
 import { getReportData, ReportFilter } from '@/app/actions/reports';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { toPng } from 'html-to-image';
+import { jsPDF } from 'jspdf';
 
 type ReportGeneratorProps = {
     techs: any[];
     motos: any[];
-    reportTypes: any[];
 };
 
-export function ReportGenerator({ techs, motos, reportTypes }: ReportGeneratorProps) {
+const reportTypes = [
+    { id: 'km', idLabel: 'QUILOMETRAGEM', title: 'Relatório de Quilometragem', icon: BarChart3, color: 'brand-cyan', desc: 'Resumo de KM rodada por técnico e moto.' },
+    { id: 'fuel', idLabel: 'ABASTECIMENTOS', title: 'Relatório de Abastecimentos', icon: Download, color: 'brand-emerald', desc: 'Análise de consumo e gastos com combustível.' },
+    { id: 'oil', idLabel: 'ÓLEO', title: 'Trocas de Óleo', icon: FileText, color: 'brand-orange', desc: 'Monitoramento de intervalos e alertas de atraso.' },
+    { id: 'expense', idLabel: 'DESPESAS', title: 'Despesas e Reembolsos', icon: Download, color: 'brand-cyan', desc: 'Consolidado financeiro de despesas operacionais.' },
+    { id: 'maintenance', idLabel: 'MANUTENÇÃO', title: 'Manutenções Realizadas', icon: FileText, color: 'brand-orange', desc: 'Histórico de preventivas e corretivas.' },
+    { id: 'consolidated', idLabel: 'EXTRATO', title: 'Consolidado Mensal', icon: BarChart3, color: 'brand-emerald', desc: 'Visão executiva total do sistema.' },
+];
+
+export function ReportGenerator({ techs, motos }: ReportGeneratorProps) {
     const [selectedType, setSelectedType] = useState<string | null>(null);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
@@ -34,6 +45,33 @@ export function ReportGenerator({ techs, motos, reportTypes }: ReportGeneratorPr
     const [loading, setLoading] = useState(false);
     const [results, setResults] = useState<any[] | null>(null);
     const [msg, setMsg] = useState("");
+    const reportRef = React.useRef<HTMLDivElement>(null);
+
+    async function handleExportPDF() {
+        if (!reportRef.current || !results || results.length === 0) return;
+        setLoading(true);
+        try {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            const imgData = await toPng(reportRef.current, { backgroundColor: '#111', pixelRatio: 2 });
+            const width = reportRef.current.offsetWidth;
+            const height = reportRef.current.offsetHeight;
+
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (height * pdfWidth) / width;
+
+            // Add title before image
+            pdf.setFontSize(16);
+            pdf.text(`SGT - Relatorio de ${selectedType?.toUpperCase()}`, 10, 10);
+            pdf.addImage(imgData, 'PNG', 0, 15, pdfWidth, pdfHeight);
+            pdf.save(`relatorio_${selectedType}_${new Date().toISOString().split('T')[0]}.pdf`);
+        } catch (error) {
+            console.error(error);
+            setMsg("Erro ao gerar PDF.");
+        } finally {
+            setLoading(false);
+        }
+    }
 
     async function handleGenerate() {
         if (!selectedType) {
@@ -60,6 +98,44 @@ export function ReportGenerator({ techs, motos, reportTypes }: ReportGeneratorPr
         if (data.length === 0) {
             setMsg("Nenhum dado encontrado para os filtros selecionados.");
         }
+    }
+
+    function handleExportCSV() {
+        if (!results || results.length === 0) return;
+
+        // Generate CSV headers
+        const headers = ["Data", "Responsavel", "Veiculo", "Info", "Valor/Metrica"];
+
+        // Map results to CSV rows
+        const rows = results.map(item => {
+            const date = new Date(item.data || item.data_registro || item.data_entrada).toLocaleDateString('pt-BR');
+            const tech = item.technician?.nome || '—';
+            const vehicle = item.motorcycle?.placa || '—';
+            const info = item.descricao || item.categoria || item.tipo_manutencao || item.tipo_registro || '—';
+            const value = item.valor || item.valor_total || item.quilometragem || item.litros || '0';
+            const unit = item.valor ? 'BRL' : item.quilometragem ? 'KM' : item.litros ? 'L' : '';
+
+            // Clean data to prevent CSV breaking (quotes and commas)
+            const cleanArray = [date, tech, vehicle, info, `${value} ${unit}`].map(str => {
+                const s = String(str).replace(/"/g, '""'); // Escape inner quotes
+                return `"${s}"`; // Wrap in quotes
+            });
+
+            return cleanArray.join(',');
+        });
+
+        // Combine headers and rows
+        const csvContent = [headers.join(','), ...rows].join('\n');
+
+        // Create a Blob and trigger download
+        const blob = new Blob([`\ufeff${csvContent}`], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `relatorio_${selectedType}_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     const currentReport = reportTypes.find(r => r.id === selectedType);
@@ -184,52 +260,86 @@ export function ReportGenerator({ techs, motos, reportTypes }: ReportGeneratorPr
                                 <TrendingUp size={16} />
                                 Resultados Encontrados ({results.length})
                             </h4>
-                            <button
-                                className="text-[10px] font-black tracking-widest text-brand-emerald border border-brand-emerald/20 px-3 py-1 rounded-lg hover:bg-brand-emerald/10"
-                                onClick={() => alert('Simulando exportação CSV...')}
-                            >
-                                EXPORTAR CSV
-                            </button>
+                            <div className="flex gap-2">
+                                <button
+                                    className="text-[10px] font-black tracking-widest text-brand-cyan border border-brand-cyan/20 px-3 py-1 rounded-lg hover:bg-brand-cyan/10"
+                                    onClick={handleExportPDF}
+                                >
+                                    EXPORTAR PDF
+                                </button>
+                                <button
+                                    className="text-[10px] font-black tracking-widest text-brand-emerald border border-brand-emerald/20 px-3 py-1 rounded-lg hover:bg-brand-emerald/10"
+                                    onClick={handleExportCSV}
+                                >
+                                    EXPORTAR CSV
+                                </button>
+                            </div>
                         </div>
-                        <div className="overflow-x-auto rounded-2xl border border-white/5 bg-black/20">
-                            <table className="w-full text-left text-sm">
-                                <thead className="bg-white/5 text-[10px] font-bold uppercase tracking-widest text-foreground/40">
-                                    <tr>
-                                        <th className="px-6 py-4">Data</th>
-                                        <th className="px-6 py-4">Responsável</th>
-                                        {selectedType !== 'expense' && <th className="px-6 py-4">Veículo</th>}
-                                        <th className="px-6 py-4">Info Principal</th>
-                                        <th className="px-6 py-4 text-right">Valor/Métrica</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-white/5">
-                                    {results.slice(0, 10).map((item, idx) => (
-                                        <tr key={idx} className="hover:bg-white/2 transition-colors">
-                                            <td className="px-6 py-4 font-mono text-xs">
-                                                {new Date(item.data || item.data_registro || item.data_entrada).toLocaleDateString()}
-                                            </td>
-                                            <td className="px-6 py-4 font-bold">{item.technician?.nome}</td>
-                                            {selectedType !== 'expense' && <td className="px-6 py-4">{item.motorcycle?.placa}</td>}
-                                            <td className="px-6 py-4 text-xs text-foreground/60 max-w-[200px] truncate">
-                                                {item.descricao || item.categoria || item.tipo_manutencao || item.tipo_registro || '—'}
-                                            </td>
-                                            <td className="px-6 py-4 text-right font-bold text-brand-cyan">
-                                                {item.valor || item.valor_total || item.quilometragem || item.litros || '—'}
-                                                <span className="ml-1 text-[10px] text-foreground/20 font-normal">
-                                                    {item.valor ? 'BRL' : item.quilometragem ? 'KM' : item.litros ? 'L' : ''}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                    {results.length > 10 && (
+
+                        <div ref={reportRef} className="p-4 bg-black/40 rounded-3xl border border-white/5">
+
+                            {/* Graphic Chart Generation */}
+                            <div className="h-64 mb-8 w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart
+                                        data={results.slice(0, 10).map(item => ({
+                                            name: new Date(item.data || item.data_registro || item.data_entrada).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+                                            valor: Number(item.valor || item.valor_total || item.quilometragem || item.litros || 0)
+                                        })).reverse()}
+                                        margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                                    >
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                                        <XAxis dataKey="name" stroke="#ffffff40" fontSize={10} tickLine={false} axisLine={false} />
+                                        <YAxis stroke="#ffffff40" fontSize={10} tickLine={false} axisLine={false} />
+                                        <Tooltip
+                                            cursor={{ fill: '#ffffff05' }}
+                                            contentStyle={{ backgroundColor: '#000', border: '1px solid #ffffff10', borderRadius: '12px', fontSize: '12px' }}
+                                        />
+                                        <Bar dataKey="valor" fill="#06d0f9" radius={[4, 4, 0, 0]} maxBarSize={50} />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+
+                            <div className="overflow-x-auto rounded-2xl border border-white/5 bg-black/20">
+                                <table className="w-full text-left text-sm">
+                                    <thead className="bg-white/5 text-[10px] font-bold uppercase tracking-widest text-foreground/40">
                                         <tr>
-                                            <td colSpan={5} className="px-6 py-4 text-center text-foreground/20 italic text-xs">
-                                                Exibindo 10 de {results.length} resultados. Use a exportação para ver todos.
-                                            </td>
+                                            <th className="px-6 py-4">Data</th>
+                                            <th className="px-6 py-4">Responsável</th>
+                                            {selectedType !== 'expense' && <th className="px-6 py-4">Veículo</th>}
+                                            <th className="px-6 py-4">Info Principal</th>
+                                            <th className="px-6 py-4 text-right">Valor/Métrica</th>
                                         </tr>
-                                    )}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody className="divide-y divide-white/5">
+                                        {results.slice(0, 10).map((item, idx) => (
+                                            <tr key={idx} className="hover:bg-white/2 transition-colors">
+                                                <td className="px-6 py-4 font-mono text-xs">
+                                                    {new Date(item.data || item.data_registro || item.data_entrada).toLocaleDateString()}
+                                                </td>
+                                                <td className="px-6 py-4 font-bold">{item.technician?.nome}</td>
+                                                {selectedType !== 'expense' && <td className="px-6 py-4">{item.motorcycle?.placa}</td>}
+                                                <td className="px-6 py-4 text-xs text-foreground/60 max-w-[200px] truncate">
+                                                    {item.descricao || item.categoria || item.tipo_manutencao || item.tipo_registro || '—'}
+                                                </td>
+                                                <td className="px-6 py-4 text-right font-bold text-brand-cyan">
+                                                    {item.valor || item.valor_total || item.quilometragem || item.litros || '—'}
+                                                    <span className="ml-1 text-[10px] text-foreground/20 font-normal">
+                                                        {item.valor ? 'BRL' : item.quilometragem ? 'KM' : item.litros ? 'L' : ''}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        {results.length > 10 && (
+                                            <tr>
+                                                <td colSpan={5} className="px-6 py-4 text-center text-foreground/20 italic text-xs">
+                                                    Exibindo 10 de {results.length} resultados. Use a exportação em CSV para ver todos os detalhes na íntegra.
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 )}
