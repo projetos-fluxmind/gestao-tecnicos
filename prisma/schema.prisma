@@ -1,0 +1,256 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Cargo {
+  supervisor
+  tecnico
+}
+
+enum StatusMoto {
+  ativa
+  em_manutencao
+  inativa
+  reserva
+}
+
+enum TipoRegistroHodometro {
+  inicio_mes
+  abastecimento
+  troca_oleo
+  manutencao
+  outro
+}
+
+enum TipoManutencao {
+  preventiva
+  corretiva
+  emergencial
+}
+
+enum StatusManutencao {
+  em_andamento
+  concluida
+  aguardando_peca
+}
+
+enum CategoriaDespesa {
+  alimentacao
+  combustivel
+  pedagio
+  hospedagem
+  pecas
+  outros
+}
+
+model User {
+  id           Int          @id @default(autoincrement())
+  nome         String       @db.VarChar(100)
+  email        String       @unique @db.VarChar(100)
+  senha        String       @db.VarChar(255)
+  telefone     String?      @db.VarChar(20)
+  cargo        Cargo
+  status       String       @default("ativo") @db.VarChar(20)
+  foto_perfil  String?      @db.VarChar(255)
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @default(now()) @updatedAt @map("updated_at")
+  technician   Technician?
+
+  @@map("usuarios")
+}
+
+model Technician {
+  id                        Int                   @id @default(autoincrement())
+  usuarioId                 Int?                  @unique @map("usuario_id")
+  user                      User?                 @relation(fields: [usuarioId], references: [id])
+  nome                      String                @db.VarChar(100)
+  matricula                 String                @unique @db.VarChar(20)
+  telefone                  String?               @db.VarChar(20)
+  regiao_atuacao            String?               @db.VarChar(100)
+  cartao_corporativo_numero String?               @db.VarChar(30)
+  cartao_corporativo_limite Decimal?              @db.Decimal(10, 2)
+  status                    String                @default("ativo") @db.VarChar(20)
+  createdAt                 DateTime              @default(now()) @map("created_at")
+  assignments               TechnicalAssignment[]
+  odometerReadings          OdometerReading[]
+  fuelLogs                  FuelLog[]
+  oilChanges                OilChange[]
+  maintenances              Maintenance[]
+  expenses                  Expense[]
+  parts                     Part[]
+
+  @@map("tecnicos")
+}
+
+model Motorcycle {
+  id               Int                   @id @default(autoincrement())
+  placa            String                @unique @db.VarChar(10)
+  modelo           String                @db.VarChar(50)
+  marca            String                @db.VarChar(50)
+  ano              Int?
+  chassi           String?               @db.VarChar(30)
+  renavam          String?               @db.VarChar(20)
+  cor              String?               @db.VarChar(30)
+  status           StatusMoto            @default(ativa)
+  hodometro_atual  Decimal               @default(0) @db.Decimal(10, 1)
+  observacoes      String?               @db.Text
+  createdAt        DateTime              @default(now()) @map("created_at")
+  assignments      TechnicalAssignment[] @relation("assigned_motorcycle")
+  subassignments   TechnicalAssignment[] @relation("substituted_motorcycle")
+  odometerReadings OdometerReading[]
+  fuelLogs         FuelLog[]
+  oilChanges       OilChange[]
+  maintenances     Maintenance[]         @relation("main_motorcycle")
+  submaintenances  Maintenance[]         @relation("substitute_motorcycle")
+  parts            Part[]
+
+  @@map("motos")
+}
+
+model TechnicalAssignment {
+  id                  Int        @id @default(autoincrement())
+  tecnicoId           Int        @map("tecnico_id")
+  technician          Technician @relation(fields: [tecnicoId], references: [id])
+  motoId              Int        @map("moto_id")
+  motorcycle          Motorcycle @relation("assigned_motorcycle", fields: [motoId], references: [id])
+  data_inicio         DateTime   @db.Date
+  data_fim            DateTime?  @db.Date
+  motivo_troca        String?    @db.VarChar(50)
+  moto_substituida_id Int?
+  substituted_moto    Motorcycle? @relation("substituted_motorcycle", fields: [moto_substituida_id], references: [id])
+  tipo                String     @default("definitiva") @db.VarChar(30)
+  observacoes         String?    @db.Text
+  createdAt           DateTime   @default(now()) @map("created_at")
+
+  @@map("vinculos_tecnico_moto")
+}
+
+model OdometerReading {
+  id             Int                  @id @default(autoincrement())
+  motoId         Int                  @map("moto_id")
+  motorcycle     Motorcycle           @relation(fields: [motoId], references: [id])
+  tecnicoId      Int                  @map("tecnico_id")
+  technician     Technician           @relation(fields: [tecnicoId], references: [id])
+  quilometragem  Decimal              @db.Decimal(10, 1)
+  tipo_registro  TipoRegistroHodometro
+  foto_hodometro String?              @db.Text
+  data_registro  DateTime             @db.Date
+  mes_referencia String?              @db.VarChar(7)
+  observacoes    String?              @db.Text
+  createdAt      DateTime             @default(now()) @map("created_at")
+
+  @@map("registros_hodometro")
+}
+
+model FuelLog {
+  id              Int        @id @default(autoincrement())
+  motoId          Int        @map("moto_id")
+  motorcycle      Motorcycle @relation(fields: [motoId], references: [id])
+  tecnicoId       Int        @map("tecnico_id")
+  technician      Technician @relation(fields: [tecnicoId], references: [id])
+  data            DateTime   @db.Date
+  quilometragem   Decimal    @db.Decimal(10, 1)
+  litros          Decimal?   @db.Decimal(6, 2)
+  valor_total     Decimal?   @db.Decimal(10, 2)
+  valor_litro     Decimal?   @db.Decimal(6, 3)
+  posto           String?    @db.VarChar(100)
+  tipo_combustivel String?    @default("gasolina") @db.VarChar(30)
+  comprovante_foto String?    @db.Text
+  forma_pagamento String     @default("cartao_corporativo") @db.VarChar(30)
+  observacoes     String?    @db.Text
+  createdAt       DateTime   @default(now()) @map("created_at")
+
+  @@map("abastecimentos")
+}
+
+model OilChange {
+  id                       Int        @id @default(autoincrement())
+  motoId                   Int        @map("moto_id")
+  motorcycle               Motorcycle @relation(fields: [motoId], references: [id])
+  tecnicoId                Int        @map("tecnico_id")
+  technician               Technician @relation(fields: [tecnicoId], references: [id])
+  data                     DateTime   @db.Date
+  quilometragem            Decimal    @db.Decimal(10, 1)
+  quilometragem_ultima_troca Decimal    @default(0) @db.Decimal(10, 1)
+  diferenca_km             Decimal?   @db.Decimal(10, 1)
+  alerta_ultrapassou       Boolean    @default(false)
+  local_servico            String?    @db.VarChar(100)
+  valor                    Decimal?   @db.Decimal(10, 2)
+  tipo_oleo                String?    @db.VarChar(50)
+  comprovante_foto         String?    @db.Text
+  observacoes              String?    @db.Text
+  createdAt                DateTime   @default(now()) @map("created_at")
+
+  @@map("trocas_oleo")
+}
+
+model Maintenance {
+  id                  Int               @id @default(autoincrement())
+  motoId              Int               @map("moto_id")
+  motorcycle          Motorcycle        @relation("main_motorcycle", fields: [motoId], references: [id])
+  tecnicoId           Int               @map("tecnico_id")
+  technician          Technician        @relation(fields: [tecnicoId], references: [id])
+  data_entrada        DateTime          @db.Date
+  data_saida          DateTime?         @db.Date
+  oficina_nome        String?           @db.VarChar(100)
+  oficina_contato     String?           @db.VarChar(50)
+  tipo_manutencao     TipoManutencao
+  descricao_problema  String?           @db.Text
+  servicos_realizados String?           @db.Text
+  pecas_trocadas      String?           @db.Text
+  valor_total         Decimal?          @db.Decimal(10, 2)
+  moto_substituta_id  Int?
+  substitute_moto     Motorcycle?       @relation("substitute_motorcycle", fields: [moto_substituta_id], references: [id])
+  status              StatusManutencao  @default(em_andamento)
+  comprovante_foto    String?           @db.Text
+  observacoes         String?           @db.Text
+  createdAt           DateTime          @default(now()) @map("created_at")
+
+  @@map("manutencoes")
+}
+
+model Expense {
+  id                 Int              @id @default(autoincrement())
+  tecnicoId          Int              @map("tecnico_id")
+  technician         Technician       @relation(fields: [tecnicoId], references: [id])
+  data               DateTime         @db.Date
+  categoria          CategoriaDespesa
+  descricao          String?          @db.VarChar(200)
+  valor              Decimal          @db.Decimal(10, 2)
+  comprovante_foto   String?          @db.Text
+  mes_referencia     String?          @db.VarChar(7)
+  aprovado_supervisor Boolean          @default(false)
+  data_aprovacao     DateTime?
+  observacoes        String?          @db.Text
+  createdAt          DateTime         @default(now()) @map("created_at")
+
+  @@map("despesas")
+}
+
+model Part {
+  id               Int        @id @default(autoincrement())
+  motoId           Int        @map("moto_id")
+  motorcycle       Motorcycle @relation(fields: [motoId], references: [id])
+  tecnicoId        Int        @map("tecnico_id")
+  technician       Technician @relation(fields: [tecnicoId], references: [id])
+  data             DateTime   @db.Date
+  peca_nome        String     @db.VarChar(100)
+  peca_codigo      String?    @db.VarChar(50)
+  quantidade       Int        @default(1)
+  valor_unitario   Decimal?   @db.Decimal(10, 2)
+  valor_total      Decimal?   @db.Decimal(10, 2)
+  motivo_troca     String?    @db.Text
+  local_troca      String?    @db.VarChar(100)
+  quilometragem    Decimal?   @db.Decimal(10, 1)
+  comprovante_foto String?    @db.Text
+  observacoes      String?    @db.Text
+  createdAt        DateTime   @default(now()) @map("created_at")
+
+  @@map("pecas")
+}
