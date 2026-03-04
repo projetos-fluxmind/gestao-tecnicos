@@ -29,6 +29,7 @@ type ReportGeneratorProps = {
 const reportTypes = [
     { id: 'km', idLabel: 'QUILOMETRAGEM', title: 'Relatório de Quilometragem', icon: BarChart3, color: 'brand-cyan', desc: 'Resumo de KM rodada por técnico e moto.' },
     { id: 'fuel', idLabel: 'ABASTECIMENTOS', title: 'Relatório de Abastecimentos', icon: Download, color: 'brand-emerald', desc: 'Análise de consumo e gastos com combustível.' },
+    { id: 'efficiency', idLabel: 'EFICIÊNCIA', title: 'Relatório de Eficiência R$/KM', icon: TrendingUp, color: 'brand-cyan', desc: 'Média de gasto por KM rodado (Técnico/Moto).' },
     { id: 'oil', idLabel: 'ÓLEO', title: 'Trocas de Óleo', icon: FileText, color: 'brand-orange', desc: 'Monitoramento de intervalos e alertas de atraso.' },
     { id: 'expense', idLabel: 'DESPESAS', title: 'Despesas e Reembolsos', icon: Download, color: 'brand-cyan', desc: 'Consolidado financeiro de despesas operacionais.' },
     { id: 'maintenance', idLabel: 'MANUTENÇÃO', title: 'Manutenções Realizadas', icon: FileText, color: 'brand-orange', desc: 'Histórico de preventivas e corretivas.' },
@@ -320,12 +321,14 @@ export function ReportGenerator({ techs, motos }: ReportGeneratorProps) {
                                                 <td className="px-6 py-4 font-bold">{item.technician?.nome}</td>
                                                 {selectedType !== 'expense' && <td className="px-6 py-4">{item.motorcycle?.placa}</td>}
                                                 <td className="px-6 py-4 text-xs text-foreground/60 max-w-[200px] truncate">
-                                                    {item.descricao || item.categoria || item.tipo_manutencao || item.tipo_registro || '—'}
+                                                    {item.info_extra || item.descricao || item.categoria || item.tipo_manutencao || item.tipo_registro || '—'}
                                                 </td>
                                                 <td className="px-6 py-4 text-right font-bold text-brand-cyan">
-                                                    {item.valor || item.valor_total || item.quilometragem || item.litros || '—'}
+                                                    {typeof item.valor === 'number' && item.unidade === 'R$/KM'
+                                                        ? `R$ ${item.valor.toFixed(2)}`
+                                                        : (item.valor || item.valor_total || item.quilometragem || item.litros || '—')}
                                                     <span className="ml-1 text-[10px] text-foreground/20 font-normal">
-                                                        {item.valor ? 'BRL' : item.quilometragem ? 'KM' : item.litros ? 'L' : ''}
+                                                        {item.unidade || (item.valor ? 'BRL' : item.quilometragem ? 'KM' : item.litros ? 'L' : '')}
                                                     </span>
                                                 </td>
                                             </tr>

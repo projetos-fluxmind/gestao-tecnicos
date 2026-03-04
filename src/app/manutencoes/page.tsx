@@ -11,6 +11,7 @@ import { getMaintenances } from '../actions/maintenance';
 import { getMotorcycles } from '../actions/motorcycles';
 import { getAllTechnicians } from '../actions/technicians';
 import { ManutencaoForm } from '@/components/ManutencaoForm';
+import { ConcludeMaintenanceForm } from '@/components/ConcludeMaintenanceForm';
 
 export default async function ManutencoesPage() {
     const [maintenances, motos, techs] = await Promise.all([
@@ -105,10 +106,13 @@ export default async function ManutencoesPage() {
                                         {m.valor_total ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(m.valor_total)) : '---'}
                                     </td>
                                     <td className="px-6 py-4 text-right">
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-xs uppercase font-bold text-foreground/60">
-                                                {m.status.replace('_', ' ')}
-                                            </span>
+                                        <div className="flex items-center justify-end gap-3">
+                                            {m.status !== 'concluida' && (
+                                                <ConcludeMaintenanceForm maintenanceId={m.id} placa={m.motorcycle?.placa} />
+                                            )}
+                                            {m.status === 'concluida' && (
+                                                <span className="text-xs uppercase font-bold text-brand-emerald">Concluída</span>
+                                            )}
                                             <button className="p-2 hover:bg-white/10 rounded-lg text-brand-cyan transition-all opacity-0 group-hover:opacity-100">
                                                 <ArrowRight size={18} />
                                             </button>

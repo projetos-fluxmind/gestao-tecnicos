@@ -114,7 +114,7 @@ export default async function AbastecimentosPage() {
                                         <td className="px-6 py-5">
                                             <div className="flex flex-col gap-1.5">
                                                 <p className="text-sm font-medium">{Number(log.litros).toFixed(1)} Litros</p>
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex flex-wrap gap-2">
                                                     <span className="text-[9px] bg-white/5 py-1 px-2 rounded-md font-mono text-foreground/60 border border-white/5">
                                                         KM: {Number(log.quilometragem).toLocaleString('pt-BR')}
                                                     </span>
@@ -123,8 +123,17 @@ export default async function AbastecimentosPage() {
                                                             Média: {log.mediaKmL.toFixed(1)} km/l
                                                         </span>
                                                     ) : (
-                                                        <span className="text-[9px] bg-white/5 text-foreground/30 py-1 px-2 rounded-md font-bold border border-white/5 whitespace-nowrap" title="Necessário dois registros da mesma moto para calcular a média.">
-                                                            Média: -- km/l
+                                                        <span className="text-[9px] bg-white/5 text-foreground/30 py-1 px-2 rounded-md font-bold border border-white/5 whitespace-nowrap">
+                                                            Média: --
+                                                        </span>
+                                                    )}
+                                                    {log.custo_por_km ? (
+                                                        <span className="text-[9px] bg-brand-emerald/20 text-brand-emerald py-1 px-2 rounded-md font-bold border border-brand-emerald/20 whitespace-nowrap">
+                                                            Gasto p/ KM: R$ {Number(log.custo_por_km).toFixed(2)}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-[9px] bg-white/5 text-foreground/20 py-1 px-2 rounded-md font-mono border border-white/5 whitespace-nowrap">
+                                                            {log.observacoes === "Registro Inicial" ? "Registro Inicial" : "--"}
                                                         </span>
                                                     )}
                                                 </div>

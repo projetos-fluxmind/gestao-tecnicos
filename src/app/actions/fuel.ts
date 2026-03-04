@@ -19,6 +19,8 @@ export async function getFuelLogs() {
             litros: Number(log.litros),
             valor_total: Number(log.valor_total),
             valor_litro: Number(log.valor_litro),
+            km_percorrido: log.km_percorrido ? Number(log.km_percorrido) : null,
+            custo_por_km: log.custo_por_km ? Number(log.custo_por_km) : null,
             motorcycle: log.motorcycle ? {
                 ...log.motorcycle,
                 hodometro_atual: Number(log.motorcycle.hodometro_atual)
@@ -47,36 +49,79 @@ export async function createFuelLog(data: {
 
         const vLitro = data.litros > 0 ? (data.valor / data.litros) : 0;
 
-        await prisma.fuelLog.create({
-            data: {
-                motoId: data.motoId,
-                tecnicoId: data.tecnicoId,
-                data: new Date(data.data),
-                quilometragem: data.km,
-                litros: data.litros,
-                valor_total: data.valor,
-                valor_litro: vLitro,
-                posto: "Posto em Rota",
-                observacoes: `Abastecimento aos ${data.km}km`
-            }
+        // Buscar o último abastecimento para calcular a eficiência
+        const lastLog = await prisma.fuelLog.findFirst({
+            where: { motoId: data.motoId },
+            orderBy: { quilometragem: 'desc' }
         });
 
-        // Atualizar hodômetro da moto
-        await prisma.motorcycle.update({
-            where: { id: data.motoId },
-            data: { hodometro_atual: data.km }
-        });
+        let kmPercorrido = null;
+        let custoPorKm = null;
 
-        // Registrar também um log de hodômetro para manter o histórico
-        await prisma.odometerReading.create({
-            data: {
-                motoId: data.motoId,
-                tecnicoId: data.tecnicoId,
-                quilometragem: data.km,
-                tipo_registro: "abastecimento",
-                data_registro: new Date(data.data),
-                observacoes: "Registrado via Abastecimento"
+        if (lastLog) {
+            const diffKm = Number(data.km) - Number(lastLog.quilometragem);
+            if (diffKm > 0) {
+                kmPercorrido = diffKm;
+                custoPorKm = data.valor / diffKm;
             }
+        }
+
+        await prisma.$transaction(async (tx) => {
+            const fuelLog = await tx.fuelLog.create({
+                data: {
+                    motoId: data.motoId,
+                    tecnicoId: data.tecnicoId,
+                    data: new Date(data.data),
+                    quilometragem: data.km,
+                    litros: data.litros,
+                    valor_total: data.valor,
+                    valor_litro: vLitro,
+                    km_percorrido: kmPercorrido,
+                    custo_por_km: custoPorKm,
+                    posto: "Posto em Rota",
+                    observacoes: lastLog ? `Abastecimento aos ${data.km}km` : "Registro Inicial"
+                }
+            });
+
+            // 1. Abater do saldo do técnico
+            await tx.technician.update({
+                where: { id: data.tecnicoId },
+                data: {
+                    saldo_atual: {
+                        decrement: data.valor
+                    }
+                }
+            });
+
+            // 2. Registrar a transação do cartão
+            await tx.cardTransaction.create({
+                data: {
+                    tecnicoId: data.tecnicoId,
+                    tipo: "gasto",
+                    valor: data.valor,
+                    categoria: "combustivel",
+                    referencia: `abastecimento:${fuelLog.id}`,
+                    descricao: `Abastecimento: ${data.km}km`
+                }
+            });
+
+            // Atualizar hodômetro da moto
+            await tx.motorcycle.update({
+                where: { id: data.motoId },
+                data: { hodometro_atual: data.km }
+            });
+
+            // Registrar também um log de hodômetro para manter o histórico
+            await tx.odometerReading.create({
+                data: {
+                    motoId: data.motoId,
+                    tecnicoId: data.tecnicoId,
+                    quilometragem: data.km,
+                    tipo_registro: "abastecimento",
+                    data_registro: new Date(data.data),
+                    observacoes: "Registrado via Abastecimento"
+                }
+            });
         });
 
         revalidatePath("/abastecimentos");

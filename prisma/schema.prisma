@@ -85,6 +85,7 @@ model Technician {
   regiao_atuacao            String?               @db.VarChar(100)
   cartao_corporativo_numero String?               @db.VarChar(30)
   cartao_corporativo_limite Decimal?              @db.Decimal(10, 2)
+  saldo_atual               Decimal               @default(0) @db.Decimal(10, 2)
   status                    String                @default("ativo") @db.VarChar(20)
   createdAt                 DateTime              @default(now()) @map("created_at")
   assignments               TechnicalAssignment[]
@@ -94,8 +95,29 @@ model Technician {
   maintenances              Maintenance[]
   expenses                  Expense[]
   parts                     Part[]
+  cardTransactions          CardTransaction[]
 
   @@map("tecnicos")
+}
+
+enum TipoTransacao {
+  recarga
+  gasto
+}
+
+model CardTransaction {
+  id          Int           @id @default(autoincrement())
+  tecnicoId   Int           @map("tecnico_id")
+  technician  Technician    @relation(fields: [tecnicoId], references: [id])
+  data        DateTime      @default(now())
+  tipo        TipoTransacao
+  valor       Decimal       @db.Decimal(10, 2)
+  categoria   String?       @db.VarChar(50) // alimentacao, combustivel, manutencao, recarga, etc.
+  referencia  String?       @db.VarChar(50) // Link para ID do registro original (abastecimento:123)
+  descricao   String?       @db.Text
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  @@map("transacoes_cartao")
 }
 
 model Motorcycle {
@@ -169,6 +191,8 @@ model FuelLog {
   litros          Decimal?   @db.Decimal(6, 2)
   valor_total     Decimal?   @db.Decimal(10, 2)
   valor_litro     Decimal?   @db.Decimal(6, 3)
+  km_percorrido   Decimal?   @db.Decimal(10, 1)
+  custo_por_km    Decimal?   @db.Decimal(10, 2)
   posto           String?    @db.VarChar(100)
   tipo_combustivel String?    @default("gasolina") @db.VarChar(30)
   comprovante_foto String?    @db.Text
@@ -263,4 +287,12 @@ model Part {
   createdAt        DateTime   @default(now()) @map("created_at")
 
   @@map("pecas")
+}
+
+model CompanyWallet {
+  id          Int      @id @default(1)
+  saldo_geral Decimal  @default(0) @db.Decimal(12, 2)
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("carteira_empresa")
 }

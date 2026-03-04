@@ -61,3 +61,60 @@ export async function createMaintenance(data: {
         return { success: false };
     }
 }
+export async function concludeMaintenance(id: number, data: {
+    valor_total: number;
+    servicos: string;
+    pecas?: string;
+}) {
+    try {
+        await prisma.$transaction(async (tx) => {
+            // 1. Atualizar a manutenção
+            const maintenance = await tx.maintenance.update({
+                where: { id },
+                data: {
+                    valor_total: data.valor_total,
+                    servicos_realizados: data.servicos,
+                    pecas_trocadas: data.pecas,
+                    status: "concluida",
+                    data_saida: new Date()
+                }
+            });
+
+            // 2. Voltar a moto para status ativa
+            await tx.motorcycle.update({
+                where: { id: maintenance.motoId },
+                data: { status: "ativa" }
+            });
+
+            // 3. Abater do saldo do técnico
+            await tx.technician.update({
+                where: { id: maintenance.tecnicoId },
+                data: {
+                    saldo_atual: {
+                        decrement: data.valor_total
+                    }
+                }
+            });
+
+            // 4. Registrar a transação do cartão
+            await tx.cardTransaction.create({
+                data: {
+                    tecnicoId: maintenance.tecnicoId,
+                    tipo: "gasto",
+                    valor: data.valor_total,
+                    categoria: "manutencao",
+                    referencia: `manutencao:${id}`,
+                    descricao: `Manutenção: ${maintenance.tipo_manutencao} - ${data.servicos}`
+                }
+            });
+        });
+
+        revalidatePath("/manutencoes");
+        revalidatePath("/frota");
+        revalidatePath("/");
+        return { success: true };
+    } catch (error) {
+        console.error("Erro ao concluir manutenção:", error);
+        return { success: false };
+    }
+}

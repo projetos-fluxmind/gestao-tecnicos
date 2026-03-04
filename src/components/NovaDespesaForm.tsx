@@ -12,6 +12,7 @@ export function NovaDespesaForm({ techs }: { techs: any[] }) {
     const [valor, setValor] = useState("");
     const [descricao, setDescricao] = useState("");
     const [data, setData] = useState(new Date().toISOString().split('T')[0]);
+    const [tipoPagamento, setTipoPagamento] = useState<'cartao' | 'reembolso'>('cartao');
     const [loading, setLoading] = useState(false);
     const [msg, setMsg] = useState({ type: '', text: '' });
 
@@ -38,11 +39,12 @@ export function NovaDespesaForm({ techs }: { techs: any[] }) {
             categoria,
             valor: cleanValor,
             descricao,
-            data
+            data,
+            tipoPagamento
         });
 
         if (res?.success) {
-            setMsg({ type: 'success', text: 'Solicitação de Reembolso Enviada!' });
+            setMsg({ type: 'success', text: tipoPagamento === 'cartao' ? 'Gasto registrado no cartão!' : 'Solicitação de Reembolso Enviada!' });
             setTimeout(() => {
                 setOpen(false);
                 setMsg({ type: '', text: '' });
@@ -75,8 +77,14 @@ export function NovaDespesaForm({ techs }: { techs: any[] }) {
                     <Receipt size={28} />
                 </div>
                 <div>
-                    <h3 className="text-2xl font-bold">Solicitar Reembolso</h3>
-                    <p className="text-sm text-foreground/40 text-balance">Registre os detalhes da despesa operacional para aprovação.</p>
+                    <h3 className="text-2xl font-bold">
+                        {tipoPagamento === 'cartao' ? 'Lançar Gasto com Cartão' : 'Solicitar Reembolso'}
+                    </h3>
+                    <p className="text-sm text-foreground/40 text-balance">
+                        {tipoPagamento === 'cartao'
+                            ? 'Debite automaticamente do saldo do cartão corporativo vinculado.'
+                            : 'Registre gastos do próprio bolso para aprovação de devolução.'}
+                    </p>
                 </div>
             </div>
 
@@ -113,6 +121,25 @@ export function NovaDespesaForm({ techs }: { techs: any[] }) {
                                 <input type="date" value={data} onChange={e => setData(e.target.value)} className="w-full bg-black/40 border border-white/5 rounded-2xl pl-10 pr-4 py-4 outline-none focus:border-brand-cyan/30 transition-all text-sm" />
                             </div>
                         </div>
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold text-foreground/40 uppercase tracking-widest px-1">Forma de Pagamento</label>
+                            <div className="flex gap-2 p-1 bg-black/40 rounded-2xl border border-white/5">
+                                <button
+                                    type="button"
+                                    onClick={() => setTipoPagamento('cartao')}
+                                    className={`flex-1 py-3 text-[10px] sm:text-xs font-bold rounded-xl transition-all ${tipoPagamento === 'cartao' ? 'bg-brand-cyan text-black' : 'text-foreground/40 hover:text-white'}`}
+                                >
+                                    Cartão Corp.
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setTipoPagamento('reembolso')}
+                                    className={`flex-1 py-3 text-[10px] sm:text-xs font-bold rounded-xl transition-all ${tipoPagamento === 'reembolso' ? 'bg-brand-emerald text-black' : 'text-foreground/40 hover:text-white'}`}
+                                >
+                                    Dinheiro (Reembolso)
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -147,11 +174,13 @@ export function NovaDespesaForm({ techs }: { techs: any[] }) {
             <div className="mt-8 flex flex-col md:flex-row gap-4 items-center">
                 <div className="flex-1 p-4 bg-white/2 rounded-2xl border border-white/5 flex gap-3 text-xs text-foreground/40 leading-relaxed italic">
                     <Info size={16} className="text-brand-cyan flex-shrink-0" />
-                    Após o envio, a despesa ficará com status "Pendente" até que um supervisor realize a revisão e aprovação para o repasse financeiro.
+                    {tipoPagamento === 'cartao'
+                        ? 'O valor será deduzido automaticamente do saldo do cartão corporativo em tempo real e não passará por aprovação de reembolso.'
+                        : 'A despesa ficará pendente de aprovação do supervisor antes de ser processada para devolução ao técnico.'}
                 </div>
-                <button disabled={loading} onClick={handleSubmit} className="w-full md:w-72 py-5 bg-brand-cyan text-black font-black tracking-widest rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 shadow-[0_10px_30px_-10px_rgba(6,208,249,0.3)] flex items-center justify-center gap-2">
+                <button disabled={loading} onClick={handleSubmit} className={`w-full md:w-72 py-5 font-black tracking-widest rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2 ${tipoPagamento === 'cartao' ? 'bg-brand-cyan text-black shadow-[0_10px_30px_-10px_rgba(6,208,249,0.3)]' : 'bg-brand-emerald text-black shadow-[0_10px_30px_-10px_rgba(16,185,129,0.3)]'}`}>
                     <Save size={20} />
-                    {loading ? 'ENVIANDO...' : 'SOLICITAR REEMBOLSO'}
+                    {loading ? 'ENVIANDO...' : tipoPagamento === 'cartao' ? 'REGISTRAR GASTO' : 'SOLICITAR REEMBOLSO'}
                 </button>
             </div>
         </div>

@@ -26,6 +26,8 @@ export async function getTechnicians(page: number = 1, pageSize: number = 8) {
 
         const serializedTechs = technicians.map(tech => ({
             ...tech,
+            cartao_corporativo_limite: tech.cartao_corporativo_limite ? Number(tech.cartao_corporativo_limite) : null,
+            saldo_atual: Number(tech.saldo_atual),
             assignments: tech.assignments.map(a => ({
                 ...a,
                 motorcycle: a.motorcycle ? {
@@ -165,6 +167,8 @@ export async function getAllTechnicians() {
 
         return techs.map(tech => ({
             ...tech,
+            cartao_corporativo_limite: tech.cartao_corporativo_limite ? Number(tech.cartao_corporativo_limite) : null,
+            saldo_atual: Number(tech.saldo_atual),
             assignments: tech.assignments.map(a => ({
                 ...a,
                 motorcycle: a.motorcycle ? {
@@ -207,6 +211,8 @@ export async function getTechnicianById(id: number) {
 
         return {
             ...tech,
+            cartao_corporativo_limite: tech.cartao_corporativo_limite ? Number(tech.cartao_corporativo_limite) : null,
+            saldo_atual: Number(tech.saldo_atual),
             assignments: tech.assignments.map(a => ({
                 ...a,
                 motorcycle: a.motorcycle ? {
