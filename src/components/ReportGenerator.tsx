@@ -31,7 +31,6 @@ const reportTypes = [
     { id: 'fuel', idLabel: 'ABASTECIMENTOS', title: 'Relatório de Abastecimentos', icon: Download, color: 'brand-emerald', desc: 'Análise de consumo e gastos com combustível.' },
     { id: 'efficiency', idLabel: 'EFICIÊNCIA', title: 'Relatório de Eficiência R$/KM', icon: TrendingUp, color: 'brand-cyan', desc: 'Média de gasto por KM rodado (Técnico/Moto).' },
     { id: 'oil', idLabel: 'ÓLEO', title: 'Trocas de Óleo', icon: FileText, color: 'brand-orange', desc: 'Monitoramento de intervalos e alertas de atraso.' },
-    { id: 'expense', idLabel: 'DESPESAS', title: 'Despesas e Reembolsos', icon: Download, color: 'brand-cyan', desc: 'Consolidado financeiro de despesas operacionais.' },
     { id: 'maintenance', idLabel: 'MANUTENÇÃO', title: 'Manutenções Realizadas', icon: FileText, color: 'brand-orange', desc: 'Histórico de preventivas e corretivas.' },
     { id: 'consolidated', idLabel: 'EXTRATO', title: 'Consolidado Mensal', icon: BarChart3, color: 'brand-emerald', desc: 'Visão executiva total do sistema.' },
 ];
@@ -307,7 +306,7 @@ export function ReportGenerator({ techs, motos }: ReportGeneratorProps) {
                                         <tr>
                                             <th className="px-6 py-4">Data</th>
                                             <th className="px-6 py-4">Responsável</th>
-                                            {selectedType !== 'expense' && <th className="px-6 py-4">Veículo</th>}
+                                            <th className="px-6 py-4">Veículo</th>
                                             <th className="px-6 py-4">Info Principal</th>
                                             <th className="px-6 py-4 text-right">Valor/Métrica</th>
                                         </tr>
@@ -319,7 +318,7 @@ export function ReportGenerator({ techs, motos }: ReportGeneratorProps) {
                                                     {new Date(item.data || item.data_registro || item.data_entrada).toLocaleDateString()}
                                                 </td>
                                                 <td className="px-6 py-4 font-bold">{item.technician?.nome}</td>
-                                                {selectedType !== 'expense' && <td className="px-6 py-4">{item.motorcycle?.placa}</td>}
+                                                <td className="px-6 py-4">{item.motorcycle?.placa}</td>
                                                 <td className="px-6 py-4 text-xs text-foreground/60 max-w-[200px] truncate">
                                                     {item.info_extra || item.descricao || item.categoria || item.tipo_manutencao || item.tipo_registro || '—'}
                                                 </td>

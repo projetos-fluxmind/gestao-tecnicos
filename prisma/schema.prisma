@@ -96,6 +96,7 @@ model Technician {
   expenses                  Expense[]
   parts                     Part[]
   cardTransactions          CardTransaction[]
+  serviceLogs               ServiceLog[]
 
   @@map("tecnicos")
 }
@@ -295,4 +296,21 @@ model CompanyWallet {
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@map("carteira_empresa")
+}
+
+model ServiceLog {
+  id                    Int        @id @default(autoincrement())
+  tecnicoId             Int        @map("tecnico_id")
+  technician            Technician @relation(fields: [tecnicoId], references: [id])
+  data                  DateTime   @db.Date
+  instalacoes           Int        @default(0)
+  manutencoes_com_troca Int        @default(0)
+  manutencoes_sem_troca Int        @default(0)
+  retiradas             Int        @default(0)
+  observacoes           String?    @db.Text
+  createdAt             DateTime   @default(now()) @map("created_at")
+  updatedAt             DateTime   @default(now()) @updatedAt @map("updated_at")
+
+  @@unique([tecnicoId, data])
+  @@map("registros_servico_diario")
 }

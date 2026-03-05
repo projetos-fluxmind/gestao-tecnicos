@@ -83,16 +83,6 @@ export async function getReportData(filter: ReportFilter) {
                 });
                 break;
 
-            case 'expense':
-                results = await prisma.expense.findMany({
-                    where: {
-                        ...(startDate || endDate ? { data: dateFilter } : {}),
-                        ...(techId ? { tecnicoId: techId } : {}),
-                    },
-                    include: { technician: true },
-                    orderBy: { data: 'desc' }
-                });
-                break;
 
             case 'maintenance':
                 results = await prisma.maintenance.findMany({
@@ -153,12 +143,11 @@ export async function getReportData(filter: ReportFilter) {
 
             case 'consolidated':
                 // For consolidated, we return a merged list of diverse events
-                const [m, f, e] = await Promise.all([
+                const [m, f] = await Promise.all([
                     prisma.maintenance.findMany({ take: 10, include: { technician: true, motorcycle: true }, orderBy: { data_entrada: 'desc' } }),
                     prisma.fuelLog.findMany({ take: 10, include: { technician: true, motorcycle: true }, orderBy: { data: 'desc' } }),
-                    prisma.expense.findMany({ take: 10, include: { technician: true }, orderBy: { data: 'desc' } })
                 ]);
-                results = [...m, ...f, ...e].sort((a: any, b: any) =>
+                results = [...m, ...f].sort((a: any, b: any) =>
                     new Date(b.data || b.data_entrada || b.data_registro).getTime() -
                     new Date(a.data || a.data_entrada || a.data_registro).getTime()
                 );

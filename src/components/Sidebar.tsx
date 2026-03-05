@@ -10,6 +10,7 @@ import {
     Wrench,
     Fuel,
     Receipt,
+    Activity,
     BarChart3,
     Settings,
     LogOut,
@@ -41,6 +42,7 @@ const menuSections = [
             { name: 'Troca de Óleo', icon: Droplets, href: '/troca-oleo' },
             { name: 'Manutenção', icon: Wrench, href: '/manutencoes' },
             { name: 'Despesas', icon: Receipt, href: '/despesas' },
+            { name: 'Serviços', icon: Activity, href: '/servicos' },
         ]
     },
     {
@@ -76,8 +78,8 @@ export function Sidebar() {
                                         key={item.href}
                                         href={item.href}
                                         className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 group ${isActive
-                                                ? 'bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/10 neon-glow-cyan'
-                                                : 'text-foreground/50 hover:bg-white/5 hover:text-foreground'
+                                            ? 'bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/10 neon-glow-cyan'
+                                            : 'text-foreground/50 hover:bg-white/5 hover:text-foreground'
                                             }`}
                                     >
                                         <item.icon size={18} className={isActive ? 'text-brand-cyan' : 'group-hover:text-brand-cyan'} />
