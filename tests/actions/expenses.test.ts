@@ -46,6 +46,10 @@ describe('Expenses Actions', () => {
     describe('reloadCard', () => {
         it('should correctly increment technician balance and create transaction', async () => {
             const txMock = {
+                companyWallet: {
+                    findFirst: vi.fn().mockResolvedValue({ id: 1, saldo_geral: 1000 }),
+                    update: vi.fn().mockResolvedValue({ id: 1 })
+                },
                 technician: { update: vi.fn().mockResolvedValue({ id: 1 }) },
                 cardTransaction: { create: vi.fn().mockResolvedValue({ id: 10 }) }
             };
@@ -54,13 +58,9 @@ describe('Expenses Actions', () => {
                 return callback(txMock);
             });
 
-            const result = await reloadCard({
-                tecnicoId: 1,
-                valor: 500,
-                descricao: 'Recarga Teste'
-            });
+            const result = await reloadCard(1, 500);
 
-            expect(result.success).toBe(true);
+            expect(result).toBe(true);
             expect(txMock.technician.update).toHaveBeenCalledWith({
                 where: { id: 1 },
                 data: {
@@ -96,10 +96,11 @@ describe('Expenses Actions', () => {
                 valor: 50,
                 categoria: 'alimentacao',
                 descricao: 'Almoço',
-                data: new Date().toISOString()
+                data: new Date().toISOString(),
+                pagamento: 'cartao'
             });
 
-            expect(result.success).toBe(true);
+            expect(result).toBe(true);
             expect(txMock.expense.create).toHaveBeenCalled();
             expect(txMock.technician.update).toHaveBeenCalledWith({
                 where: { id: 1 },
