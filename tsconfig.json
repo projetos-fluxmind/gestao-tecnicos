@@ -40,6 +40,7 @@
     "node_modules",
     "test-*.ts",
     "test-*.js",
-    "prisma/seed.ts"
+    "prisma/seed.ts",
+    "MOTOS"
   ]
 }
