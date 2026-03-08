@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { serializePrisma } from "@/lib/serializePrisma";
 import { revalidatePath } from "next/cache";
 
 export async function getTechnicians(page: number = 1, pageSize: number = 8) {
@@ -9,53 +10,40 @@ export async function getTechnicians(page: number = 1, pageSize: number = 8) {
 
         const [technicians, total] = await Promise.all([
             prisma.technician.findMany({
-                orderBy: { nome: 'asc' },
+                orderBy: { nome: "asc" },
                 skip,
                 take: pageSize,
                 include: {
                     assignments: {
                         where: { data_fim: null },
                         include: {
-                            motorcycle: true
-                        }
-                    }
-                }
+                            motorcycle: true,
+                        },
+                    },
+                },
             }),
-            prisma.technician.count()
+            prisma.technician.count(),
         ]);
 
-        const serializedTechs = technicians.map(tech => ({
-            ...tech,
-            cartao_corporativo_limite: tech.cartao_corporativo_limite ? Number(tech.cartao_corporativo_limite) : null,
-            saldo_atual: Number(tech.saldo_atual),
-            assignments: tech.assignments.map(a => ({
-                ...a,
-                motorcycle: a.motorcycle ? {
-                    ...a.motorcycle,
-                    hodometro_atual: Number(a.motorcycle.hodometro_atual)
-                } : null
-            }))
-        }));
-
         return {
-            data: serializedTechs,
+            data: serializePrisma(technicians),
             metadata: {
                 total,
                 page,
                 pageSize,
-                totalPages: Math.ceil(total / pageSize)
-            }
+                totalPages: Math.ceil(total / pageSize),
+            },
         };
     } catch (error) {
-        console.error("Erro ao buscar técnicos:", error);
+        console.error("Erro ao buscar tecnicos:", error);
         return {
             data: [],
             metadata: {
                 total: 0,
                 page: 1,
                 pageSize,
-                totalPages: 0
-            }
+                totalPages: 0,
+            },
         };
     }
 }
@@ -94,14 +82,14 @@ export async function createTechnician(formData: FormData) {
                 tamanho_calca,
                 tamanho_bota,
                 tamanho_capacete,
-                status: "ativo"
-            }
+                status: "ativo",
+            },
         });
         revalidatePath("/equipe");
         return { success: true };
     } catch (error) {
-        console.error("Erro ao criar técnico:", error);
-        return { success: false, error: "Falha ao criar técnico." };
+        console.error("Erro ao criar tecnico:", error);
+        return { success: false, error: "Falha ao criar tecnico." };
     }
 }
 
@@ -140,45 +128,34 @@ export async function updateTechnician(id: number, formData: FormData) {
                 tamanho_calca,
                 tamanho_bota,
                 tamanho_capacete,
-            }
+            },
         });
         revalidatePath("/equipe");
         revalidatePath(`/equipe/${id}`);
         return { success: true };
     } catch (error) {
-        console.error("Erro ao atualizar técnico:", error);
-        return { success: false, error: "Falha ao atualizar técnico." };
+        console.error("Erro ao atualizar tecnico:", error);
+        return { success: false, error: "Falha ao atualizar tecnico." };
     }
 }
 
 export async function getAllTechnicians() {
     try {
         const techs = await prisma.technician.findMany({
-            orderBy: { nome: 'asc' },
+            orderBy: { nome: "asc" },
             include: {
                 assignments: {
                     where: { data_fim: null },
                     include: {
-                        motorcycle: true
-                    }
-                }
-            }
+                        motorcycle: true,
+                    },
+                },
+            },
         });
 
-        return techs.map(tech => ({
-            ...tech,
-            cartao_corporativo_limite: tech.cartao_corporativo_limite ? Number(tech.cartao_corporativo_limite) : null,
-            saldo_atual: Number(tech.saldo_atual),
-            assignments: tech.assignments.map(a => ({
-                ...a,
-                motorcycle: a.motorcycle ? {
-                    ...a.motorcycle,
-                    hodometro_atual: Number(a.motorcycle.hodometro_atual)
-                } : null
-            }))
-        }));
+        return serializePrisma(techs);
     } catch (error) {
-        console.error("Erro ao buscar todos os técnicos:", error);
+        console.error("Erro ao buscar todos os tecnicos:", error);
         return [];
     }
 }
@@ -186,7 +163,7 @@ export async function getAllTechnicians() {
 export async function getTechniciansCount() {
     try {
         return await prisma.technician.count({
-            where: { status: 'ativo' }
+            where: { status: "ativo" },
         });
     } catch (error) {
         return 0;
@@ -201,28 +178,19 @@ export async function getTechnicianById(id: number) {
                 assignments: {
                     where: { data_fim: null },
                     include: {
-                        motorcycle: true
-                    }
-                }
-            }
+                        motorcycle: true,
+                    },
+                },
+            },
         });
 
-        if (!tech) return null;
+        if (!tech) {
+            return null;
+        }
 
-        return {
-            ...tech,
-            cartao_corporativo_limite: tech.cartao_corporativo_limite ? Number(tech.cartao_corporativo_limite) : null,
-            saldo_atual: Number(tech.saldo_atual),
-            assignments: tech.assignments.map(a => ({
-                ...a,
-                motorcycle: a.motorcycle ? {
-                    ...a.motorcycle,
-                    hodometro_atual: Number(a.motorcycle.hodometro_atual)
-                } : null
-            }))
-        };
+        return serializePrisma(tech);
     } catch (error) {
-        console.error("Erro ao buscar técnico:", error);
+        console.error("Erro ao buscar tecnico:", error);
         return null;
     }
 }

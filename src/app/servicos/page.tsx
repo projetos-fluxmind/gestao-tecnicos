@@ -12,10 +12,6 @@ export default async function ServicosPage() {
         getAllTechnicians()
     ]);
 
-    // Serialize Prisma returned objects to avoid passing complex Decimal fields to Client Components.
-    const serializedLogs = JSON.parse(JSON.stringify(logs));
-    const serializedTechs = JSON.parse(JSON.stringify(techs));
-
     return (
         <div className="space-y-12 animate-in fade-in slide-in-from-top-4 duration-700 pb-20">
             {/* Header */}
@@ -25,8 +21,8 @@ export default async function ServicosPage() {
                         <Activity size={32} />
                     </div>
                     <div>
-                        <h2 className="text-3xl font-bold tracking-tight">Produtividade e Serviços</h2>
-                        <p className="text-foreground/50">Lançamento diário de instalações, manutenções e retiradas.</p>
+                        <h2 className="text-3xl font-bold tracking-tight">Produtividade e Servicos</h2>
+                        <p className="text-foreground/50">Lancamento diario de instalacoes, manutencoes e retiradas.</p>
                     </div>
                 </div>
                 <div className="flex gap-3">
@@ -34,10 +30,9 @@ export default async function ServicosPage() {
                 </div>
             </header>
 
-            {/* Dashboards (30 days) */}
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-6">
                 {[
-                    { label: 'Instalações', val: stats.totalInstalacoes, bg: 'bg-brand-cyan/10 border-brand-cyan/20', color: 'text-brand-cyan' },
+                    { label: 'Instalacoes', val: stats.totalInstalacoes, bg: 'bg-brand-cyan/10 border-brand-cyan/20', color: 'text-brand-cyan' },
                     { label: 'Manut. com Troca', val: stats.totalManutComTroca, bg: 'bg-brand-orange/10 border-brand-orange/20', color: 'text-brand-orange' },
                     { label: 'Manut. sem Troca', val: stats.totalManutSemTroca, bg: 'bg-white/5 border-white/10', color: 'text-white' },
                     { label: 'Retiradas', val: stats.totalRetiradas, bg: 'bg-brand-emerald/10 border-brand-emerald/20', color: 'text-brand-emerald' },
@@ -50,8 +45,7 @@ export default async function ServicosPage() {
                 ))}
             </div>
 
-            {/* Listagem de Operações Diárias via Client Component para Filtros Dinâmicos */}
-            <ServicosTableClient logs={serializedLogs} techs={serializedTechs} />
+            <ServicosTableClient logs={logs} techs={techs} />
         </div>
     );
 }
