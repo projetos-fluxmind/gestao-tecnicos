@@ -84,4 +84,8 @@ body {
   ::-webkit-scrollbar-thumb:hover {
     background: #333;
   }
+
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }

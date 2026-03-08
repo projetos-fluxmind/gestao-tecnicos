@@ -99,6 +99,7 @@ export function HodometroForm({ motos, techs }: { motos: any[], techs: any[] }) 
                         <input
                             type="number"
                             step="0.1"
+                            inputMode="decimal"
                             placeholder="0.0"
                             value={km}
                             onChange={(e) => setKm(e.target.value)}

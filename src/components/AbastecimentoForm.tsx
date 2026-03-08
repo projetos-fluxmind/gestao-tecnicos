@@ -130,7 +130,7 @@ export function AbastecimentoForm({ motos, techs }: { motos: any[], techs: any[]
                                 <span>KM Atual</span>
                                 {selectedMoto && <span className="text-brand-cyan">Últ: {selectedMoto.hodometro_atual}</span>}
                             </label>
-                            <input type="number" step="0.1" value={km} onChange={e => setKm(e.target.value)} placeholder="0.0" className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm outline-none focus:border-brand-cyan/40 font-mono" />
+                            <input type="number" step="0.1" inputMode="decimal" value={km} onChange={e => setKm(e.target.value)} placeholder="0.0" className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm outline-none focus:border-brand-cyan/40 font-mono" />
                         </div>
                         <div className="space-y-1">
                             <label className="text-[10px] font-bold text-foreground/50 uppercase">Data</label>
@@ -141,15 +141,15 @@ export function AbastecimentoForm({ motos, techs }: { motos: any[], techs: any[]
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         <div className="space-y-1">
                             <label className="text-[10px] font-bold text-foreground/50 uppercase">Litros</label>
-                            <input type="number" step="0.1" value={litros} onChange={handleLitrosChange} placeholder="Ex: 10.5" className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm outline-none focus:border-brand-cyan/40 font-mono" />
+                            <input type="number" step="0.1" inputMode="decimal" value={litros} onChange={handleLitrosChange} placeholder="Ex: 10.5" className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm outline-none focus:border-brand-cyan/40 font-mono" />
                         </div>
                         <div className="space-y-1">
                             <label className="text-[10px] font-bold text-foreground/50 uppercase">R$/Litro</label>
-                            <input type="number" step="0.01" value={valorLitro} onChange={handleValorLitroChange} placeholder="Ex: 5.80" className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm outline-none focus:border-emerald-500/40 font-mono" />
+                            <input type="number" step="0.01" inputMode="decimal" value={valorLitro} onChange={handleValorLitroChange} placeholder="Ex: 5.80" className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm outline-none focus:border-emerald-500/40 font-mono" />
                         </div>
                         <div className="space-y-1 md:col-span-1 col-span-2">
                             <label className="text-[10px] font-bold text-foreground/50 uppercase">Total (R$)</label>
-                            <input type="number" step="0.01" value={valor} onChange={handleValorTotalChange} placeholder="0.00" className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm outline-none focus:border-emerald-500/40 font-mono text-emerald-500 font-bold" />
+                            <input type="number" step="0.01" inputMode="decimal" value={valor} onChange={handleValorTotalChange} placeholder="0.00" className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm outline-none focus:border-emerald-500/40 font-mono text-emerald-500 font-bold" />
                         </div>
                     </div>
 

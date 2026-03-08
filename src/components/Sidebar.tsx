@@ -57,7 +57,7 @@ export function Sidebar() {
     const pathname = usePathname();
 
     return (
-        <aside className="w-64 h-screen fixed left-0 top-0 glass flex flex-col z-50 overflow-y-auto">
+        <aside className="hidden lg:flex w-64 h-screen fixed left-0 top-0 glass flex flex-col z-50 overflow-y-auto">
             <div className="p-8 pb-4">
                 <h1 className="text-2xl font-bold neon-text-cyan tracking-wider">
                     SGT <span className="text-xs font-light text-foreground/30">PRO</span>
