@@ -89,7 +89,7 @@ export function NovaDespesaForm({ techs }: { techs: any[] }) {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest pl-1">Valor (R$)</label>
-                                        <input type="number" step="0.01" required placeholder="0.00" value={valor} onChange={e => setValor(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm focus:border-brand-cyan/40 outline-none font-mono" />
+                                        <input type="number" step="0.01" inputMode="decimal" required placeholder="0.00" value={valor} onChange={e => setValor(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm focus:border-brand-cyan/40 outline-none font-mono" />
                                     </div>
                                     <div>
                                         <label className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest pl-1">Forma de Pagto.</label>

@@ -71,6 +71,7 @@ export function ConcludeMaintenanceForm({ maintenanceId, placa }: Props) {
                             <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-emerald/40" size={16} />
                             <input
                                 type="number"
+                                inputMode="decimal"
                                 value={valor}
                                 onChange={e => setValor(e.target.value)}
                                 placeholder="0,00"

@@ -97,7 +97,7 @@ export default async function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
           <div className="glass rounded-3xl overflow-hidden shadow-2xl">
-            <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/1">
+            <div className="p-6 sm:p-8 border-b border-white/5 flex justify-between items-center bg-white/1">
               <div>
                 <h3 className="text-xl font-bold flex items-center gap-2">
                   <Bike className="text-brand-cyan" size={20} />
@@ -105,8 +105,8 @@ export default async function Dashboard() {
                 </h3>
                 <p className="text-xs text-foreground/30 font-medium">Situação em tempo real dos ativos.</p>
               </div>
-              <Link href="/frota" className="text-brand-cyan text-xs font-bold uppercase tracking-widest hover:underline flex items-center gap-1">
-                Gerenciar Frota <ArrowUpRight size={14} />
+              <Link href="/frota" className="text-brand-cyan text-[10px] sm:text-xs font-bold uppercase tracking-widest hover:underline flex items-center gap-1">
+                Ver Tudo <ArrowUpRight size={14} />
               </Link>
             </div>
             <div className="divide-y divide-white/5">
@@ -115,22 +115,22 @@ export default async function Dashboard() {
                 const technicianName = currentAssignment?.technician?.nome || 'Disponível';
 
                 return (
-                  <div key={moto.id} className="p-6 flex items-center justify-between hover:bg-white/2 transition-all group">
-                    <div className="flex items-center gap-5">
-                      <div className="w-12 h-12 rounded-2xl bg-black/20 flex items-center justify-center border border-white/5 group-hover:border-brand-cyan/30 transition-all">
-                        <Bike size={20} className="text-foreground/30 group-hover:text-brand-cyan" />
+                  <div key={moto.id} className="p-4 sm:p-6 flex items-center justify-between hover:bg-white/2 transition-all group">
+                    <div className="flex items-center gap-3 sm:gap-5">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-black/20 flex items-center justify-center border border-white/5 group-hover:border-brand-cyan/30 transition-all">
+                        <Bike size={18} className="text-foreground/30 group-hover:text-brand-cyan" />
                       </div>
-                      <div>
-                        <h4 className="font-bold text-foreground/80">{moto.placa}</h4>
-                        <p className="text-xs text-foreground/30">{moto.modelo} • <span className="text-brand-cyan/60 font-medium">{technicianName}</span></p>
+                      <div className="max-w-[120px] sm:max-w-none">
+                        <h4 className="font-bold text-foreground/80 text-sm sm:text-base">{moto.placa}</h4>
+                        <p className="text-[10px] sm:text-xs text-foreground/30 truncate">{moto.modelo} • <span className="text-brand-cyan/60 font-medium">{technicianName}</span></p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-4 sm:gap-6">
                       <div className="hidden sm:block text-right">
                         <p className="text-[10px] font-bold text-foreground/20 uppercase">Hodômetro</p>
                         <p className="text-sm font-mono font-bold">{Number(moto.hodometro_atual).toLocaleString()} km</p>
                       </div>
-                      <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${moto.status === 'ativa'
+                      <span className={`px-3 sm:px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${moto.status === 'ativa'
                         ? 'bg-brand-emerald/10 text-brand-emerald border-brand-emerald/20'
                         : moto.status === 'em_manutencao'
                           ? 'bg-brand-orange/10 text-brand-orange border-brand-orange/20 animate-pulse'
@@ -151,26 +151,26 @@ export default async function Dashboard() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <Link href="/hodometro" className="glass p-8 rounded-3xl flex items-center justify-between group hover:border-brand-cyan/50 transition-all">
+            <Link href="/hodometro" className="glass p-6 sm:p-8 rounded-3xl flex items-center justify-between group hover:border-brand-cyan/50 transition-all">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-brand-cyan/10 rounded-2xl text-brand-cyan group-hover:scale-110 transition-transform">
                   <Hash size={24} />
                 </div>
                 <div>
-                  <h4 className="font-bold">Lançar Quilometragem</h4>
-                  <p className="text-xs text-foreground/40">Sincronização diária</p>
+                  <h4 className="font-bold text-sm sm:text-base">Lançar Quilometragem</h4>
+                  <p className="text-[10px] sm:text-xs text-foreground/40">Sincronização diária</p>
                 </div>
               </div>
               <ArrowUpRight className="text-foreground/20 group-hover:text-brand-cyan" size={20} />
             </Link>
-            <Link href="/abastecimentos" className="glass p-8 rounded-3xl flex items-center justify-between group hover:border-brand-emerald/50 transition-all">
+            <Link href="/abastecimentos" className="glass p-6 sm:p-8 rounded-3xl flex items-center justify-between group hover:border-brand-emerald/50 transition-all">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-brand-emerald/10 rounded-2xl text-brand-emerald group-hover:scale-110 transition-transform">
                   <Fuel size={24} />
                 </div>
                 <div>
-                  <h4 className="font-bold">Registrar Abastecimento</h4>
-                  <p className="text-xs text-foreground/40">Controle de consumo</p>
+                  <h4 className="font-bold text-sm sm:text-base">Registrar Abastecimento</h4>
+                  <p className="text-[10px] sm:text-xs text-foreground/40">Controle de consumo</p>
                 </div>
               </div>
               <ArrowUpRight className="text-foreground/20 group-hover:text-brand-emerald" size={20} />
@@ -179,7 +179,7 @@ export default async function Dashboard() {
         </div>
 
         <div className="space-y-8">
-          <div className="glass p-8 rounded-3xl border-t-2 border-brand-orange/30">
+          <div className="glass p-6 sm:p-8 rounded-3xl border-t-2 border-brand-orange/30">
             <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
               <AlertTriangle size={20} className="text-brand-orange" />
               Alertas Críticos
@@ -196,7 +196,7 @@ export default async function Dashboard() {
                     <h4 className={`text-sm font-bold ${alert.type === 'error' ? 'text-red-400' : 'text-brand-orange'}`}>
                       {alert.title}
                     </h4>
-                    <p className="text-xs text-foreground/50 mt-1">{alert.desc}</p>
+                    <p className="text-[10px] sm:text-xs text-foreground/50 mt-1">{alert.desc}</p>
                   </div>
                 </div>
               )) : (
@@ -210,11 +210,11 @@ export default async function Dashboard() {
             </button>
           </div>
 
-          <div className="glass p-8 rounded-3xl bg-brand-cyan/10 border-none relative overflow-hidden">
+          <div className="glass p-6 sm:p-8 rounded-3xl bg-brand-cyan/10 border-none relative overflow-hidden">
             <div className="relative z-10">
-              <h4 className="text-xl font-bold mb-2">Suporte Técnico</h4>
-              <p className="text-sm text-foreground/60 mb-6 italic">"Gestão eficiente gera resultados permanentes."</p>
-              <button className="px-6 py-2 bg-black text-white rounded-xl text-xs font-bold hover:bg-black/80 transition-all border border-white/10">
+              <h4 className="text-lg sm:text-xl font-bold mb-2">Suporte Técnico</h4>
+              <p className="text-xs sm:text-sm text-foreground/60 mb-6 italic">"Gestão eficiente gera resultados permanentes."</p>
+              <button className="px-6 py-2 bg-black text-white rounded-xl text-[10px] sm:text-xs font-bold hover:bg-black/80 transition-all border border-white/10">
                 Chamado Frotas
               </button>
             </div>

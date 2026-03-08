@@ -103,7 +103,8 @@ export function CardTransactionHistory({ transactions }: { transactions: any[] }
                 </div>
             </div>
 
-            <div className="overflow-x-auto">
+            {/* Desktop Table */}
+            <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-left">
                     <thead>
                         <tr className="text-[10px] font-bold uppercase tracking-widest text-foreground/30 border-b border-white/5 bg-white/1">
@@ -142,12 +143,47 @@ export function CardTransactionHistory({ transactions }: { transactions: any[] }
                                 </td>
                             </tr>
                         ))}
-                        {filteredTransactions.length === 0 && (
-                            <tr><td colSpan={4} className="px-8 py-16 text-center text-foreground/20 italic">Sem registros.</td></tr>
-                        )}
                     </tbody>
                 </table>
             </div>
+
+            {/* Mobile Card List */}
+            <div className="md:hidden divide-y divide-white/5">
+                {filteredTransactions.map((t) => (
+                    <div key={t.id} className="p-6 space-y-3">
+                        <div className="flex justify-between items-start">
+                            <div className="flex items-center gap-3">
+                                <div className={`p-2 rounded-xl h-fit ${t.tipo === 'recarga' ? 'bg-brand-emerald/10' : 'bg-white/5'}`}>
+                                    {getIcon(t.tipo, t.categoria)}
+                                </div>
+                                <div>
+                                    <p className="text-sm font-bold text-foreground/80">{getCategoryLabel(t.categoria)}</p>
+                                    <p className="text-[10px] text-foreground/30 uppercase font-bold tracking-wider">{t.technician?.nome}</p>
+                                </div>
+                            </div>
+                            <p className={`font-mono font-bold text-base ${t.tipo === 'recarga' ? 'text-brand-emerald' : 'text-brand-orange'}`}>
+                                {t.tipo === 'recarga' ? '+' : '-'} R$ {Number(t.valor).toFixed(2)}
+                            </p>
+                        </div>
+
+                        {(t.descricao || t.referencia) && (
+                            <div className="bg-white/2 p-3 rounded-xl border border-white/5">
+                                {t.descricao && <p className="text-xs text-foreground/60 mb-1">{t.descricao}</p>}
+                                {t.referencia && <p className="text-[9px] font-mono text-foreground/20 italic uppercase truncate">{t.referencia}</p>}
+                            </div>
+                        )}
+
+                        <div className="flex justify-between items-center text-[10px] text-foreground/40 font-mono italic">
+                            <span>REGISTRO:</span>
+                            <span>{new Date(t.data).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {filteredTransactions.length === 0 && (
+                <div className="px-8 py-16 text-center text-foreground/20 italic">Sem registros no momento.</div>
+            )}
         </div>
     );
 }

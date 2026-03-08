@@ -170,7 +170,7 @@ export function ReportGenerator({ techs, motos }: ReportGeneratorProps) {
             )}
 
             {/* Config & Results Section */}
-            <div className="glass p-8 rounded-[2rem] space-y-8 relative overflow-hidden">
+            <div className="glass p-4 sm:p-8 rounded-[2rem] space-y-8 relative overflow-hidden">
                 {loading && (
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-50 flex flex-col items-center justify-center gap-4">
                         <Loader2 className="text-brand-cyan animate-spin" size={48} />
@@ -183,11 +183,11 @@ export function ReportGenerator({ techs, motos }: ReportGeneratorProps) {
                         <h3 className="text-xl font-bold">Parâmetros de Refinamento</h3>
                         <p className="text-sm text-foreground/40">{selectedType ? `Configurando: ${currentReport?.title}` : 'Selecione um módulo acima para filtrar.'}</p>
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 w-full sm:w-auto">
                         {results && (
                             <button
                                 onClick={() => setResults(null)}
-                                className="px-6 py-3 glass rounded-xl flex items-center gap-2 hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-wider"
+                                className="flex-1 sm:flex-none px-4 sm:px-6 py-3 glass rounded-xl flex items-center justify-center gap-2 hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-wider"
                             >
                                 <X size={18} /> Limpar
                             </button>
@@ -195,10 +195,10 @@ export function ReportGenerator({ techs, motos }: ReportGeneratorProps) {
                         <button
                             disabled={!selectedType || loading}
                             onClick={handleGenerate}
-                            className="px-8 py-3 bg-brand-cyan text-black font-black rounded-xl flex items-center gap-2 hover:opacity-90 transition-all shadow-[0_0_20px_#06d0f944] disabled:opacity-30 tracking-widest text-xs"
+                            className="flex-1 sm:flex-none px-4 sm:px-8 py-3 bg-brand-cyan text-black font-black rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-[0_0_20px_#06d0f944] disabled:opacity-30 tracking-widest text-xs"
                         >
                             <FileSearch size={18} />
-                            {results ? 'REPROCESSAR' : 'GERAR ANÁLISE'}
+                            {results ? 'ATUALIZAR' : 'GERAR'}
                         </button>
                     </div>
                 </div>
@@ -255,28 +255,28 @@ export function ReportGenerator({ techs, motos }: ReportGeneratorProps) {
                 {/* Results Table Preview */}
                 {results && results.length > 0 && (
                     <div className="mt-8 animate-in zoom-in-95 duration-500">
-                        <div className="flex items-center justify-between mb-4 px-2">
+                        <div className="flex flex-col sm:flex-row items-center justify-between mb-4 gap-4 px-2">
                             <h4 className="font-bold text-brand-cyan flex items-center gap-2">
                                 <TrendingUp size={16} />
-                                Resultados Encontrados ({results.length})
+                                Resultados ({results.length})
                             </h4>
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 w-full sm:w-auto">
                                 <button
-                                    className="text-[10px] font-black tracking-widest text-brand-cyan border border-brand-cyan/20 px-3 py-1 rounded-lg hover:bg-brand-cyan/10"
+                                    className="flex-1 sm:flex-none text-[10px] font-black tracking-widest text-brand-cyan border border-brand-cyan/20 px-3 py-2 rounded-lg hover:bg-brand-cyan/10"
                                     onClick={handleExportPDF}
                                 >
-                                    EXPORTAR PDF
+                                    PDF
                                 </button>
                                 <button
-                                    className="text-[10px] font-black tracking-widest text-brand-emerald border border-brand-emerald/20 px-3 py-1 rounded-lg hover:bg-brand-emerald/10"
+                                    className="flex-1 sm:flex-none text-[10px] font-black tracking-widest text-brand-emerald border border-brand-emerald/20 px-3 py-2 rounded-lg hover:bg-brand-emerald/10"
                                     onClick={handleExportCSV}
                                 >
-                                    EXPORTAR CSV
+                                    CSV
                                 </button>
                             </div>
                         </div>
 
-                        <div ref={reportRef} className="p-4 bg-black/40 rounded-3xl border border-white/5">
+                        <div ref={reportRef} className="p-4 sm:p-6 bg-black/40 rounded-3xl border border-white/5">
 
                             {/* Graphic Chart Generation */}
                             <div className="h-64 mb-8 w-full">
@@ -300,7 +300,8 @@ export function ReportGenerator({ techs, motos }: ReportGeneratorProps) {
                                 </ResponsiveContainer>
                             </div>
 
-                            <div className="overflow-x-auto rounded-2xl border border-white/5 bg-black/20">
+                            {/* Desktop View Table */}
+                            <div className="hidden md:block overflow-x-auto rounded-2xl border border-white/5 bg-black/20">
                                 <table className="w-full text-left text-sm">
                                     <thead className="bg-white/5 text-[10px] font-bold uppercase tracking-widest text-foreground/40">
                                         <tr>
@@ -332,16 +333,49 @@ export function ReportGenerator({ techs, motos }: ReportGeneratorProps) {
                                                 </td>
                                             </tr>
                                         ))}
-                                        {results.length > 10 && (
-                                            <tr>
-                                                <td colSpan={5} className="px-6 py-4 text-center text-foreground/20 italic text-xs">
-                                                    Exibindo 10 de {results.length} resultados. Use a exportação em CSV para ver todos os detalhes na íntegra.
-                                                </td>
-                                            </tr>
-                                        )}
                                     </tbody>
                                 </table>
                             </div>
+
+                            {/* Mobile View Cards */}
+                            <div className="md:hidden space-y-4">
+                                {results.slice(0, 10).map((item, idx) => (
+                                    <div key={idx} className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <p className="text-[10px] text-foreground/40 font-mono tracking-wider">
+                                                    {new Date(item.data || item.data_registro || item.data_entrada).toLocaleDateString()}
+                                                </p>
+                                                <p className="font-bold text-sm text-foreground/80">{item.technician?.nome}</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="font-bold text-brand-cyan font-mono">
+                                                    {typeof item.valor === 'number' && item.unidade === 'R$/KM'
+                                                        ? `R$ ${item.valor.toFixed(2)}`
+                                                        : (item.valor || item.valor_total || item.quilometragem || item.litros || '—')}
+                                                </p>
+                                                <p className="text-[9px] text-foreground/20 font-bold uppercase">{item.unidade || (item.valor ? 'BRL' : item.quilometragem ? 'KM' : item.litros ? 'L' : '')}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                                            <div className="flex items-center gap-2">
+                                                <Bike size={12} className="text-brand-cyan/40" />
+                                                <span className="text-[10px] font-mono font-bold text-foreground/40 uppercase tracking-widest">{item.motorcycle?.placa || 'FROTAS'}</span>
+                                            </div>
+                                            <span className="text-[10px] text-foreground/40 italic truncate max-w-[150px]">
+                                                {item.info_extra || item.descricao || item.categoria || item.tipo_manutencao || item.tipo_registro || '—'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {results.length > 10 && (
+                                <div className="mt-4 px-6 py-4 text-center text-foreground/20 italic text-[10px]">
+                                    Exibindo 10 de {results.length} resultados. Use a exportação para ver o conteúdo completo.
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}

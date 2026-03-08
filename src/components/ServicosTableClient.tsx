@@ -85,7 +85,8 @@ export function ServicosTableClient({ logs, techs }: { logs: any[], techs: any[]
             </div>
 
             <div className="glass rounded-[2rem] overflow-hidden border border-white/5 shadow-2xl">
-                <div className="overflow-x-auto">
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
                             <tr className="text-[10px] font-bold uppercase tracking-widest text-foreground/30 border-b border-white/5 bg-white/2">
@@ -132,13 +133,11 @@ export function ServicosTableClient({ logs, techs }: { logs: any[], techs: any[]
 
                                         <td className="px-8 py-6 text-right relative">
                                             <div className="inline-flex items-center gap-2 justify-end">
-
                                                 <div className="opacity-0 group-hover:opacity-100 flex items-center justify-end gap-2 transition-all mr-2">
                                                     <EditOperacaoModal log={L} techs={techs} />
                                                     <DeleteOperacaoBtn id={L.id} />
                                                     <div className="w-px h-6 bg-white/10 mx-1"></div>
                                                 </div>
-
                                                 <div className="bg-white/10 px-3 py-1 rounded-xl font-mono text-xs font-bold shadow-inner whitespace-nowrap">
                                                     {totalDoDia} OS
                                                 </div>
@@ -147,30 +146,80 @@ export function ServicosTableClient({ logs, techs }: { logs: any[], techs: any[]
                                     </tr>
                                 );
                             })}
-
-                            {filteredLogs.length === 0 && (
-                                <tr>
-                                    <td colSpan={6} className="px-8 py-20 text-center">
-                                        <div className="flex flex-col items-center justify-center opacity-30">
-                                            <LayoutDashboard size={48} className="mb-4" />
-                                            {logs.length === 0 ? (
-                                                <>
-                                                    <p className="font-bold">Nenhum apontamento diário feito ainda.</p>
-                                                    <p className="text-xs max-w-sm mt-2">Clique em "Lançar Diária de Serviço" para começar a medir a produtividade do time de campo.</p>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <p className="font-bold">Nenhum registro encontrado para estes filtros.</p>
-                                                    <p className="text-xs max-w-sm mt-2">Tente limpar os campos de busca para ver todo o histórico.</p>
-                                                </>
-                                            )}
-                                        </div>
-                                    </td>
-                                </tr>
-                            )}
                         </tbody>
                     </table>
                 </div>
+
+                {/* Mobile Card View */}
+                <div className="md:hidden divide-y divide-white/5">
+                    {filteredLogs.map((L: any) => {
+                        const totalDoDia = L.instalacoes + L.manutencoes_com_troca + L.manutencoes_sem_troca + L.retiradas;
+                        return (
+                            <div key={L.id} className="p-6 space-y-4">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <div className="font-bold text-brand-cyan">{L.technician?.nome}</div>
+                                        <div className="text-[10px] text-foreground/40 font-mono mt-0.5 uppercase tracking-wider">
+                                            {new Date(L.data).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' })}
+                                        </div>
+                                    </div>
+                                    <div className="bg-white/5 px-3 py-1 rounded-lg font-mono text-[10px] font-bold">
+                                        {totalDoDia} TOTAL
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="bg-white/2 p-3 rounded-2xl border border-white/5">
+                                        <p className="text-[8px] font-bold text-brand-cyan uppercase tracking-widest mb-1">Instalações</p>
+                                        <p className="text-xl font-black font-mono">{L.instalacoes}</p>
+                                    </div>
+                                    <div className="bg-white/2 p-3 rounded-2xl border border-white/5">
+                                        <p className="text-[8px] font-bold text-brand-emerald uppercase tracking-widest mb-1">Retiradas</p>
+                                        <p className="text-xl font-black font-mono">{L.retiradas}</p>
+                                    </div>
+                                    <div className="bg-white/2 p-3 rounded-2xl border border-white/5">
+                                        <p className="text-[8px] font-bold text-brand-orange uppercase tracking-widest mb-1">Manut C/ Troca</p>
+                                        <p className="text-xl font-black font-mono">{L.manutencoes_com_troca}</p>
+                                    </div>
+                                    <div className="bg-white/2 p-3 rounded-2xl border border-white/5">
+                                        <p className="text-[8px] font-bold text-foreground/30 uppercase tracking-widest mb-1">Manut S/ Troca</p>
+                                        <p className="text-xl font-black font-mono">{L.manutencoes_sem_troca}</p>
+                                    </div>
+                                </div>
+
+                                {L.observacoes && (
+                                    <p className="text-[10px] text-brand-orange/60 italic font-mono bg-brand-orange/5 p-2 rounded-lg border border-brand-orange/10">
+                                        "{L.observacoes}"
+                                    </p>
+                                )}
+
+                                <div className="flex justify-end gap-3 pt-2">
+                                    <EditOperacaoModal log={L} techs={techs} />
+                                    <DeleteOperacaoBtn id={L.id} />
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+
+                {filteredLogs.length === 0 && (
+                    <div className="px-8 py-20 text-center">
+                        <div className="flex flex-col items-center justify-center opacity-30">
+                            <LayoutDashboard size={48} className="mb-4" />
+                            {logs.length === 0 ? (
+                                <>
+                                    <p className="font-bold">Nenhum apontamento diário feito ainda.</p>
+                                    <p className="text-xs max-w-sm mt-2">Clique em "Lançar Diária de Serviço" para começar a medir a produtividade do time de campo.</p>
+                                </>
+                            ) : (
+                                <>
+                                    <p className="font-bold">Nenhum registro encontrado para estes filtros.</p>
+                                    <p className="text-xs max-w-sm mt-2">Tente limpar os campos de busca para ver todo o histórico.</p>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
         </section>
     );

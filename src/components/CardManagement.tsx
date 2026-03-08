@@ -63,7 +63,7 @@ export function CardManagement({ techs, companyWallet }: { techs: any[], company
 
                 <form onSubmit={handleFundWallet} className="flex gap-2">
                     <input
-                        type="number" step="0.01" required value={fundingAmount} onChange={e => setFundingAmount(e.target.value)}
+                        type="number" step="0.01" inputMode="decimal" required value={fundingAmount} onChange={e => setFundingAmount(e.target.value)}
                         placeholder="Injetar fundos (R$)"
                         className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 text-xs font-mono outline-none focus:border-brand-cyan/40"
                     />
@@ -114,7 +114,7 @@ export function CardManagement({ techs, companyWallet }: { techs: any[], company
                                 <div>
                                     <label className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest mb-1 block">Valor da Transferência (R$)</label>
                                     <input
-                                        type="number" step="0.01" required value={reloadAmount} onChange={e => setReloadAmount(e.target.value)}
+                                        type="number" step="0.01" inputMode="decimal" required value={reloadAmount} onChange={e => setReloadAmount(e.target.value)}
                                         className="w-full bg-black/60 border border-brand-cyan/20 rounded-xl p-3 font-mono text-lg focus:border-brand-cyan outline-none transition-all shadow-inner"
                                         placeholder="0.00"
                                     />

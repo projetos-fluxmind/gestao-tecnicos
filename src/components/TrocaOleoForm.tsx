@@ -75,7 +75,7 @@ export function TrocaOleoForm({ motos, techs }: { motos: any[], techs: any[] }) 
                 </div>
                 <div>
                     <label className="text-xs font-bold text-foreground/40 uppercase mb-1 block">KM da Troca</label>
-                    <input type="number" step="0.1" value={km} onChange={e => setKm(e.target.value)} placeholder={`Ex: ${kmAtual + 900}`} className="w-full bg-black/20 font-mono font-bold text-brand-emerald border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-brand-emerald/50 transition-all text-xl mt-1" />
+                    <input type="number" step="0.1" inputMode="decimal" value={km} onChange={e => setKm(e.target.value)} placeholder={`Ex: ${kmAtual + 900}`} className="w-full bg-black/20 font-mono font-bold text-brand-emerald border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-brand-emerald/50 transition-all text-xl mt-1" />
                 </div>
                 <div className="pt-2">
                     <div className="p-4 bg-brand-emerald/5 border border-brand-emerald/10 rounded-xl flex flex-col items-center">

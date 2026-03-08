@@ -85,19 +85,19 @@ export function NovaOperacaoForm({ techs }: { techs: any[] }) {
                             <div className="grid grid-cols-2 gap-4 bg-black/20 p-6 rounded-2xl border border-white/5">
                                 <div>
                                     <label className="text-[10px] font-bold text-brand-cyan uppercase tracking-widest pl-1 mb-1 block">Instalações</label>
-                                    <input type="number" min="0" required value={instalacoes} onChange={e => setInstalacoes(e.target.value)} className="w-full bg-black/40 border border-brand-cyan/20 rounded-xl p-3 text-center text-lg font-mono focus:border-brand-cyan outline-none" onFocus={e => e.target.select()} />
+                                    <input type="number" min="0" inputMode="numeric" required value={instalacoes} onChange={e => setInstalacoes(e.target.value)} className="w-full bg-black/40 border border-brand-cyan/20 rounded-xl p-3 text-center text-lg font-mono focus:border-brand-cyan outline-none" onFocus={e => e.target.select()} />
                                 </div>
                                 <div>
                                     <label className="text-[10px] font-bold text-brand-emerald uppercase tracking-widest pl-1 mb-1 block">Retiradas</label>
-                                    <input type="number" min="0" required value={retiradas} onChange={e => setRetiradas(e.target.value)} className="w-full bg-black/40 border border-brand-emerald/20 rounded-xl p-3 text-center text-lg font-mono focus:border-brand-emerald outline-none" onFocus={e => e.target.select()} />
+                                    <input type="number" min="0" inputMode="numeric" required value={retiradas} onChange={e => setRetiradas(e.target.value)} className="w-full bg-black/40 border border-brand-emerald/20 rounded-xl p-3 text-center text-lg font-mono focus:border-brand-emerald outline-none" onFocus={e => e.target.select()} />
                                 </div>
                                 <div>
                                     <label className="text-[10px] font-bold text-brand-orange uppercase tracking-widest pl-1 mb-1 block">Manut. com Troca</label>
-                                    <input type="number" min="0" required value={manutencoesComTroca} onChange={e => setManutencoesComTroca(e.target.value)} className="w-full bg-black/40 border border-brand-orange/20 rounded-xl p-3 text-center text-lg font-mono focus:border-brand-orange outline-none" onFocus={e => e.target.select()} />
+                                    <input type="number" min="0" inputMode="numeric" required value={manutencoesComTroca} onChange={e => setManutencoesComTroca(e.target.value)} className="w-full bg-black/40 border border-brand-orange/20 rounded-xl p-3 text-center text-lg font-mono focus:border-brand-orange outline-none" onFocus={e => e.target.select()} />
                                 </div>
                                 <div>
                                     <label className="text-[10px] font-bold text-white uppercase tracking-widest pl-1 mb-1 block">Manut. sem Troca</label>
-                                    <input type="number" min="0" required value={manutencoesSemTroca} onChange={e => setManutencoesSemTroca(e.target.value)} className="w-full bg-black/40 border border-white/20 rounded-xl p-3 text-center text-lg font-mono focus:border-white outline-none" onFocus={e => e.target.select()} />
+                                    <input type="number" min="0" inputMode="numeric" required value={manutencoesSemTroca} onChange={e => setManutencoesSemTroca(e.target.value)} className="w-full bg-black/40 border border-white/20 rounded-xl p-3 text-center text-lg font-mono focus:border-white outline-none" onFocus={e => e.target.select()} />
                                 </div>
                             </div>
 

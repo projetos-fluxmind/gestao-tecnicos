@@ -33,7 +33,8 @@ export function MonthlyPerformanceTable({ stats }: { stats: any[] }) {
                 </div>
             </div>
 
-            <div className="overflow-x-auto">
+            {/* Desktop Table */}
+            <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-left">
                     <thead>
                         <tr className="text-[10px] font-bold uppercase tracking-widest text-foreground/20 bg-white/2 border-b border-white/5">
@@ -45,7 +46,7 @@ export function MonthlyPerformanceTable({ stats }: { stats: any[] }) {
                     </thead>
                     <tbody className="divide-y divide-white/5">
                         {sortedStats.map((stat, idx) => {
-                            const isHighCost = stat.custoKM > 0.40; // Exemplo de threshold arbitrário
+                            const isHighCost = stat.custoKM > 0.40;
 
                             return (
                                 <tr key={`${stat.tecnicoId}-${stat.motoId}`} className="hover:bg-white/5 transition-all group">
@@ -85,17 +86,60 @@ export function MonthlyPerformanceTable({ stats }: { stats: any[] }) {
                                 </tr>
                             );
                         })}
-
-                        {sortedStats.length === 0 && (
-                            <tr>
-                                <td colSpan={4} className="px-8 py-20 text-center text-foreground/20 italic">
-                                    Nenhuma movimentação ou gasto detectado neste mês para calcular médias.
-                                </td>
-                            </tr>
-                        )}
                     </tbody>
                 </table>
             </div>
+
+            {/* Mobile Card Layout */}
+            <div className="md:hidden divide-y divide-white/5">
+                {sortedStats.map((stat) => {
+                    const isHighCost = stat.custoKM > 0.40;
+                    return (
+                        <div key={`${stat.tecnicoId}-${stat.motoId}`} className="p-6 space-y-4">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <p className="font-bold text-foreground/90">{stat.techName}</p>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <span className="text-[9px] font-mono font-bold text-brand-cyan bg-brand-cyan/10 px-1.5 py-0.5 rounded">
+                                            {stat.motoPlaca}
+                                        </span>
+                                        <span className="text-[10px] text-foreground/40 truncate max-w-[150px]">
+                                            {stat.motoModelo}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <p className={`font-black font-mono text-xl ${isHighCost ? 'text-brand-orange' : 'text-brand-emerald'}`}>
+                                        R$ {stat.custoKM.toFixed(2)}
+                                    </p>
+                                    <p className="text-[8px] font-bold uppercase tracking-widest text-foreground/30">CUSTO POR KM</p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="bg-white/2 p-3 rounded-xl border border-white/5">
+                                    <p className="text-[8px] font-bold text-foreground/30 uppercase tracking-widest mb-1">Rodagem Total</p>
+                                    <p className="text-sm font-bold font-mono text-foreground/60">{Number(stat.totalKm).toLocaleString('pt-BR')} KM</p>
+                                </div>
+                                <div className="bg-white/2 p-3 rounded-xl border border-white/5">
+                                    <p className="text-[8px] font-bold text-foreground/30 uppercase tracking-widest mb-1">Gasto Acumulado</p>
+                                    <p className="text-sm font-bold font-mono text-foreground/60">R$ {Number(stat.totalGasto).toFixed(2)}</p>
+                                </div>
+                            </div>
+
+                            <div className={`w-full py-2 rounded-lg text-center text-[10px] font-bold uppercase tracking-widest ${isHighCost ? 'bg-brand-orange/10 text-brand-orange' : 'bg-brand-emerald/10 text-brand-emerald'}`}>
+                                Status: {isHighCost ? 'Atenção Necessária (Custo Alto)' : 'Operação Eficiente'}
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+
+            {sortedStats.length === 0 && (
+                <div className="px-8 py-20 text-center text-foreground/20 italic">
+                    Nenhuma movimentação para calcular médias..
+                </div>
+            )}
         </div>
     );
 }
